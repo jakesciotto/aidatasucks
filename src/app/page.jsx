@@ -45,9 +45,13 @@ export default function Home() {
           </span>
         </h1>
         <p className="animate-in-up delay-3 max-w-2xl font-mono text-sm leading-relaxed text-muted-foreground">
-          A comparison of cost APIs, usage endpoints, and billing exports across
-          AI providers. Built for FinOps teams who need programmatic access to
-          their AI spend data -- not a dashboard you have to screenshot.
+          Nobody should make the two admins at your company doing a second job
+          cobble together usage reports downloaded from a wonky dashboard.
+          Non-aggregated atomic units of spend should be programmatically
+          available to integrate into major cloud cost optimization tools.
+          <br></br>
+          <br></br>This leads us here -- a comparison of cost APIs, usage
+          endpoints, and billing exports across AI providers.
         </p>
       </section>
 

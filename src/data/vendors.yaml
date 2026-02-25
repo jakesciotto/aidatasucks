@@ -1,4 +1,4 @@
-- name: AWS Bedrock
+- name: AWS
   slug: aws
   costApi: yes
   usageApi: yes
@@ -11,7 +11,23 @@
     Invocations), CUR export to S3. Supports cost allocation tags for
     per-project attribution.
 
-- name: GCP Vertex AI
+- name: Azure
+  slug: azure
+  costApi: yes
+  usageApi: yes
+  billingExport: yes
+  granularity: Per-model, per-token, per-deployment, subscription-level
+
+  website: https://azure.microsoft.com/en-us/products/ai-services/openai-service
+  notes: >
+    Azure Cost Management API provides subscription-level cost data with
+    resource tags for per-project attribution. Azure Monitor exposes
+    token usage metrics (PromptTokens, CompletionTokens) per deployment.
+    Billing can be exported to a Storage Account as CSV or Parquet on a
+    schedule. Supports fine-grained cost allocation via tags and
+    management groups.
+
+- name: GCP
   slug: gcp
   costApi: yes
   usageApi: yes
