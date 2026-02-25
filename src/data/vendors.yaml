@@ -52,29 +52,29 @@
 
 - name: ElevenLabs
   slug: elevenlabs
-  costApi: no
+  costApi: partial
   usageApi: yes
-  billingExport: no
-  granularity: Character count, daily breakdown
+  billingExport: partial
+  granularity: Per-character, per-product, per-voice, per-API-key
 
   website: https://elevenlabs.io
   notes: >
-    Usage character-stats endpoint with daily breakdown. Subscription quota
-    tracking. No programmatic billing or cost API -- subscription managed
-    via dashboard only.
+    GET /v1/usage/character-stats for usage metrics with filtering by voice,
+    product, and API key. GET /v1/user/subscription for billing period and
+    limits. Dashboard CSV export available but no programmatic export endpoint.
 
 - name: Leonardo.ai
   slug: leonardo
-  costApi: no
-  usageApi: partial
+  costApi: partial
+  usageApi: yes
   billingExport: no
-  granularity: Credit balance only
+  granularity: Credit balance, per-generation cost via pricing calculator
 
   website: https://leonardo.ai
   notes: >
-    User info endpoint returns remaining credits. No usage history API,
-    no billing API, no export. Credit-based pricing with dashboard-only
-    consumption history.
+    GET /api/rest/v1/me returns credit balances. Pricing calculator endpoint
+    estimates cost per generation config. No CSV or billing export. Invoices
+    downloadable as PDF only from dashboard.
 
 - name: Runway
   slug: runway
@@ -207,14 +207,16 @@
 
 - name: Luma
   slug: luma
-  costApi: no
-  usageApi: no
+  costApi: yes
+  usageApi: yes
   billingExport: no
-  granularity: Pending research
+  granularity: Credit balance via API, per-generation credit costs
 
   website: https://lumalabs.ai
   notes: >
-    Pending research.
+    GET /dream-machine/v1/credits returns balance programmatically.
+    Well-documented per-generation costs (4 credits/image, 160-4480/video).
+    No CSV export. Web and API credits are separate and non-transferable.
 
 - name: Black Forest Labs
   slug: blackforestlabs
