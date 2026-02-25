@@ -68,13 +68,13 @@
   {
     "name": "Runway",
     "slug": "runway",
-    "costApi": "no",
-    "usageApi": "no",
+    "costApi": "partial",
+    "usageApi": "partial",
     "billingExport": "no",
-    "granularity": "None",
-    "grade": "F",
+    "granularity": "Credit-based",
+    "grade": "D",
     "website": "https://runwayml.com",
-    "notes": "No billing or usage API. Credit-based subscription model. All cost and usage tracking confined to the web dashboard. No export capability."
+    "notes": "Has cost and usage APIs but they are not publicly documented. Credit-based system with limited programmatic visibility. No billing export."
   },
   {
     "name": "Runware",
@@ -121,14 +121,25 @@
     "notes": "API responses include input/output token counts. No usage history API, no billing API, no export. Must self-instrument by logging per-request tokens and multiplying by published rates."
   },
   {
+    "name": "Replicate",
+    "slug": "replicate",
+    "costApi": "yes",
+    "usageApi": "yes",
+    "billingExport": "no",
+    "granularity": "Per-prediction, per-model",
+    "grade": "B",
+    "website": "https://replicate.com",
+    "notes": "Predictions API returns cost per run. GET /predictions lists all runs with costs. Hardware and model-level granularity. No billing export, but strong per-request cost visibility."
+  },
+  {
     "name": "Black Forest Labs",
     "slug": "blackforestlabs",
     "costApi": "no",
-    "usageApi": "no",
+    "usageApi": "partial",
     "billingExport": "no",
-    "granularity": "None",
-    "grade": "F",
+    "granularity": "Credit balance",
+    "grade": "D",
     "website": "https://blackforestlabs.ai",
-    "notes": "Creators of FLUX. No dedicated billing or usage tracking API. If accessed through partners (Replicate, fal.ai), the partner's billing APIs apply instead. Direct API has no cost or usage endpoints."
+    "notes": "Creators of FLUX. Credits endpoint returns remaining balance. No cost breakdown per request, no billing export. Partner platforms (Replicate, fal.ai) offer better cost visibility."
   }
 ]

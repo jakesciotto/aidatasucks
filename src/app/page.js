@@ -49,11 +49,11 @@ export default function Home() {
               <span className="ml-2">Partial coverage, significant limitations</span>
             </div>
             <div className="rounded-lg border border-border/50 bg-card/50 px-3 py-2">
-              <span className="text-gray-400 font-semibold">D</span>
+              <span className="text-pink-400 font-semibold">D</span>
               <span className="ml-2">Minimal data, painful to use</span>
             </div>
             <div className="rounded-lg border border-border/50 bg-card/50 px-3 py-2 sm:col-span-2">
-              <span className="text-gray-500 font-semibold">F</span>
+              <span className="text-rose-400 font-semibold">F</span>
               <span className="ml-2">Flying blind. No programmatic cost visibility.</span>
             </div>
           </div>

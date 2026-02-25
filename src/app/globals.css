@@ -138,12 +138,12 @@
   background-size: 256px 256px;
 }
 
-/* Grade colors -- blue/violet spectrum, distinct from status green/yellow/red */
+/* Grade colors -- blue-to-rose spectrum, distinct from status green/yellow/red */
 .grade-a { --grade-bg: rgba(99, 102, 241, 0.12); --grade-text: #818cf8; --grade-border: rgba(99, 102, 241, 0.25); }
 .grade-b { --grade-bg: rgba(96, 165, 250, 0.12); --grade-text: #93c5fd; --grade-border: rgba(96, 165, 250, 0.25); }
 .grade-c { --grade-bg: rgba(167, 139, 250, 0.12); --grade-text: #c4b5fd; --grade-border: rgba(167, 139, 250, 0.25); }
-.grade-d { --grade-bg: rgba(156, 163, 175, 0.12); --grade-text: #9ca3af; --grade-border: rgba(156, 163, 175, 0.25); }
-.grade-f { --grade-bg: rgba(107, 114, 128, 0.12); --grade-text: #6b7280; --grade-border: rgba(107, 114, 128, 0.25); }
+.grade-d { --grade-bg: rgba(244, 114, 182, 0.12); --grade-text: #f472b6; --grade-border: rgba(244, 114, 182, 0.25); }
+.grade-f { --grade-bg: rgba(251, 113, 133, 0.12); --grade-text: #fb7185; --grade-border: rgba(251, 113, 133, 0.25); }
 
 /* Status colors */
 .status-yes { --status-bg: rgba(34, 197, 94, 0.10); --status-text: #4ade80; --status-border: rgba(34, 197, 94, 0.20); }
