@@ -4,7 +4,7 @@ A static comparison site grading AI vendors on cost and usage API transparency. 
 
 ## What this is
 
-A single-page site with a sortable, filterable comparison table. Each vendor is graded A-F based on whether they provide a cost API, usage API, and billing export -- and how usable those APIs actually are.
+A single-page site with a sortable, filterable comparison table. Each vendor is graded A-F based on whether they provide a cost API, usage API, and billing export -- and how usable those APIs actually are. There's a slight weight for certain conditions.
 
 ## Stack
 
@@ -12,21 +12,12 @@ A single-page site with a sortable, filterable comparison table. Each vendor is 
 - Tailwind CSS + shadcn/ui
 - Vendor data lives in `src/data/vendors.json`
 
-## Development
+## Next Up
 
-```bash
-npm install
-npm run dev
-```
-
-## Build
-
-```bash
-npm run build
-```
-
-Static output goes to `out/`.
+- Improvement of the dataset by addition of fields: `scope`, `auth type`, `unit`
+- In a more fun & perfect world, some CSMs at these vendors reach out to me to confirm and I slap a `verification` badge on their line item
+- More fun filtering
 
 ## Contributing
 
-Edit `src/data/vendors.json` to add or update vendors. Open a PR.
+Something wrong? Don't know what to tell you dog. Open a PR.
