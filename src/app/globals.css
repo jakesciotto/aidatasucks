@@ -145,6 +145,54 @@
 .grade-d { --grade-bg: rgba(244, 114, 182, 0.12); --grade-text: #f472b6; --grade-border: rgba(244, 114, 182, 0.25); }
 .grade-f { --grade-bg: rgba(251, 113, 133, 0.12); --grade-text: #fb7185; --grade-border: rgba(251, 113, 133, 0.25); }
 
+/* Page load animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.animate-in-down {
+  animation: fade-in-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.animate-in-fade {
+  animation: fade-in 0.5s ease backwards;
+}
+
+.delay-0 { animation-delay: 0ms; }
+.delay-1 { animation-delay: 80ms; }
+.delay-2 { animation-delay: 160ms; }
+.delay-3 { animation-delay: 260ms; }
+.delay-4 { animation-delay: 380ms; }
+.delay-5 { animation-delay: 500ms; }
+.delay-6 { animation-delay: 640ms; }
+
 /* Status colors */
 .status-yes { --status-bg: rgba(34, 197, 94, 0.10); --status-text: #4ade80; --status-border: rgba(34, 197, 94, 0.20); }
 .status-no { --status-bg: rgba(239, 68, 68, 0.10); --status-text: #f87171; --status-border: rgba(239, 68, 68, 0.20); }

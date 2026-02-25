@@ -196,10 +196,11 @@ export function VendorTable({ vendors }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sorted.map((vendor) => (
+            {sorted.map((vendor, i) => (
               <TableRow
                 key={vendor.slug}
-                className="border-border/50 transition-colors hover:bg-muted/30"
+                className="animate-in-fade border-border/50 transition-colors hover:bg-muted/30"
+                style={{ animationDelay: `${500 + i * 40}ms` }}
               >
                 <TableCell className="px-4 py-3">
                   <VendorName vendor={vendor} />
@@ -227,8 +228,14 @@ export function VendorTable({ vendors }) {
 
       {/* Mobile: Cards */}
       <div className="grid gap-3 md:hidden">
-        {sorted.map((vendor) => (
-          <VendorCard key={vendor.slug} vendor={vendor} />
+        {sorted.map((vendor, i) => (
+          <div
+            key={vendor.slug}
+            className="animate-in-up"
+            style={{ animationDelay: `${500 + i * 60}ms` }}
+          >
+            <VendorCard vendor={vendor} />
+          </div>
         ))}
       </div>
     </div>
