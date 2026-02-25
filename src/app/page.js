@@ -1,7 +1,31 @@
-import vendors from "@/data/vendors.json";
+import fs from "fs";
+import path from "path";
+import yaml from "js-yaml";
 import { VendorTable } from "@/components/vendor-table";
 
+const SCORE = { yes: 2, partial: 1, no: 0 };
+
+function calcGrade(vendor) {
+  const base = SCORE[vendor.costApi] + SCORE[vendor.usageApi] + SCORE[vendor.billingExport];
+  const hasVisibility = vendor.costApi !== "no" || vendor.usageApi !== "no";
+  const score = base + (hasVisibility ? 1 : 0);
+  if (score >= 6) return "A";
+  if (score >= 4) return "B";
+  if (score >= 3) return "C";
+  if (score >= 1) return "D";
+  return "F";
+}
+
+function getVendors() {
+  const filePath = path.join(process.cwd(), "src/data/vendors.yaml");
+  const file = fs.readFileSync(filePath, "utf8");
+  const raw = yaml.load(file);
+  return raw.map((v) => ({ ...v, grade: calcGrade(v) }));
+}
+
 export default function Home() {
+  const vendors = getVendors();
+
   return (
     <div className="space-y-16">
       {/* Hero */}
