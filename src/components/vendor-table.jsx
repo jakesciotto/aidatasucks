@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -40,11 +41,45 @@ function SortIcon({ field, sortField, sortDir }) {
   );
 }
 
+function VendorName({ vendor, className = "" }) {
+  return (
+    <a
+      href={vendor.website}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`group inline-flex items-center gap-2.5 ${className}`}
+    >
+      <Image
+        src={`/logos/${vendor.slug}.png`}
+        alt={`${vendor.name} logo`}
+        width={20}
+        height={20}
+        className="rounded-sm"
+      />
+      <span className="font-medium transition-colors group-hover:text-foreground">
+        {vendor.name}
+      </span>
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        className="text-muted-foreground/0 transition-all group-hover:text-muted-foreground group-hover:translate-x-0.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      >
+        <path d="M3.5 2.5H9.5V8.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9.5 2.5L2.5 9.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </a>
+  );
+}
+
 function VendorCard({ vendor }) {
   return (
     <div className="rounded-xl border border-border/50 bg-card p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="font-semibold">{vendor.name}</span>
+        <VendorName vendor={vendor} className="font-semibold" />
         <GradeBadge grade={vendor.grade} />
       </div>
       <div className="grid grid-cols-3 gap-2">
@@ -67,15 +102,9 @@ function VendorCard({ vendor }) {
           <StatusBadge status={vendor.billingExport} />
         </div>
       </div>
-      <div className="flex gap-4 border-t border-border/50 pt-3 font-mono text-xs text-muted-foreground">
-        <div>
-          <span className="text-[10px] uppercase tracking-wider">Granularity</span>
-          <p className="text-foreground">{vendor.granularity}</p>
-        </div>
-        <div>
-          <span className="text-[10px] uppercase tracking-wider">Delay</span>
-          <p className="text-foreground">{vendor.dataDelay}</p>
-        </div>
+      <div className="border-t border-border/50 pt-3 font-mono text-xs text-muted-foreground">
+        <span className="text-[10px] uppercase tracking-wider">Granularity</span>
+        <p className="text-foreground">{vendor.granularity}</p>
       </div>
     </div>
   );
@@ -155,9 +184,6 @@ export function VendorTable({ vendors }) {
               <TableHead className="h-12 px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
                 Granularity
               </TableHead>
-              <TableHead className="h-12 px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                Data Delay
-              </TableHead>
               <TableHead
                 className="h-12 cursor-pointer select-none px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => toggleSort("grade")}
@@ -173,8 +199,8 @@ export function VendorTable({ vendors }) {
                 key={vendor.slug}
                 className="border-border/50 transition-colors hover:bg-muted/30"
               >
-                <TableCell className="px-4 py-3 font-medium">
-                  {vendor.name}
+                <TableCell className="px-4 py-3">
+                  <VendorName vendor={vendor} />
                 </TableCell>
                 <TableCell className="px-4 py-3">
                   <StatusBadge status={vendor.costApi} />
@@ -187,9 +213,6 @@ export function VendorTable({ vendors }) {
                 </TableCell>
                 <TableCell className="px-4 py-3 font-mono text-xs text-muted-foreground">
                   {vendor.granularity}
-                </TableCell>
-                <TableCell className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                  {vendor.dataDelay}
                 </TableCell>
                 <TableCell className="px-4 py-3">
                   <GradeBadge grade={vendor.grade} />

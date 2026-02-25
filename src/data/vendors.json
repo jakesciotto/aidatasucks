@@ -1,46 +1,134 @@
 [
   {
-    "name": "Placeholder Corp",
-    "slug": "placeholder-corp",
+    "name": "AWS Bedrock",
+    "slug": "aws",
     "costApi": "yes",
-    "usageApi": "partial",
-    "billingExport": "no",
-    "granularity": "Per-model",
-    "dataDelay": "~24h",
-    "grade": "C",
-    "notes": "Placeholder entry"
+    "usageApi": "yes",
+    "billingExport": "yes",
+    "granularity": "Per-model, per-token, per-invocation",
+    "grade": "A",
+    "website": "https://aws.amazon.com/bedrock/",
+    "notes": "Cost Explorer API, CloudWatch metrics (InputTokenCount, OutputTokenCount, Invocations), CUR export to S3. Supports cost allocation tags for per-project attribution."
   },
   {
-    "name": "Example AI",
-    "slug": "example-ai",
+    "name": "GCP Vertex AI",
+    "slug": "gcp",
+    "costApi": "yes",
+    "usageApi": "yes",
+    "billingExport": "yes",
+    "granularity": "Per-model, per-prediction, SKU-level",
+    "grade": "A",
+    "website": "https://cloud.google.com/vertex-ai",
+    "notes": "Cloud Billing API, BigQuery billing export with SKU-level line items, Cloud Monitoring API for token usage and latency. Supports labels for cost attribution."
+  },
+  {
+    "name": "OpenAI",
+    "slug": "openai",
+    "costApi": "partial",
+    "usageApi": "yes",
+    "billingExport": "partial",
+    "granularity": "Per-model, per-request, per-API-key",
+    "grade": "B",
+    "website": "https://openai.com",
+    "notes": "Usage API (/organization/usage) provides token-level data by model and API key. Response headers include token counts. CSV export from dashboard. No real-time cost API -- costs computed asynchronously."
+  },
+  {
+    "name": "Anthropic",
+    "slug": "anthropic",
+    "costApi": "partial",
+    "usageApi": "yes",
+    "billingExport": "partial",
+    "granularity": "Per-model, per-request tokens",
+    "grade": "B",
+    "website": "https://anthropic.com",
+    "notes": "Every response includes usage object with input/output token counts (including cache tokens). Admin API for org-level usage. CSV export from console. Must calculate costs from token counts yourself."
+  },
+  {
+    "name": "ElevenLabs",
+    "slug": "elevenlabs",
+    "costApi": "no",
+    "usageApi": "yes",
+    "billingExport": "no",
+    "granularity": "Character count, daily breakdown",
+    "grade": "C",
+    "website": "https://elevenlabs.io",
+    "notes": "Usage character-stats endpoint with daily breakdown. Subscription quota tracking. No programmatic billing or cost API -- subscription managed via dashboard only."
+  },
+  {
+    "name": "Leonardo.ai",
+    "slug": "leonardo",
+    "costApi": "no",
+    "usageApi": "partial",
+    "billingExport": "no",
+    "granularity": "Credit balance only",
+    "grade": "D",
+    "website": "https://leonardo.ai",
+    "notes": "User info endpoint returns remaining credits. No usage history API, no billing API, no export. Credit-based pricing with dashboard-only consumption history."
+  },
+  {
+    "name": "Runway",
+    "slug": "runway",
     "costApi": "no",
     "usageApi": "no",
     "billingExport": "no",
     "granularity": "None",
-    "dataDelay": "N/A",
     "grade": "F",
-    "notes": "Placeholder entry"
+    "website": "https://runwayml.com",
+    "notes": "No billing or usage API. Credit-based subscription model. All cost and usage tracking confined to the web dashboard. No export capability."
   },
   {
-    "name": "Acme Models",
-    "slug": "acme-models",
-    "costApi": "yes",
-    "usageApi": "yes",
-    "billingExport": "yes",
-    "granularity": "Per-model, per-token",
-    "dataDelay": "Real-time",
-    "grade": "A",
-    "notes": "Placeholder entry"
-  },
-  {
-    "name": "FooBar ML",
-    "slug": "foobar-ml",
-    "costApi": "partial",
-    "usageApi": "yes",
-    "billingExport": "partial",
-    "granularity": "Aggregate only",
-    "dataDelay": "~48h",
+    "name": "Runware",
+    "slug": "runware",
+    "costApi": "no",
+    "usageApi": "partial",
+    "billingExport": "no",
+    "granularity": "Per-request cost in response",
     "grade": "D",
-    "notes": "Placeholder entry"
+    "website": "https://runware.ai",
+    "notes": "Returns cost field per API response, but no aggregated usage history endpoint, no billing API, no export. You must build your own tracking by logging per-request costs."
+  },
+  {
+    "name": "Marqo",
+    "slug": "marqo",
+    "costApi": "no",
+    "usageApi": "partial",
+    "billingExport": "no",
+    "granularity": "Index-level metrics",
+    "grade": "D",
+    "website": "https://marqo.ai",
+    "notes": "Index statistics (document count, storage) via API. No billing or cost API. Infrastructure-based pricing (per-index, per-hour). Dashboard-only billing visibility."
+  },
+  {
+    "name": "Soundraw",
+    "slug": "soundraw",
+    "costApi": "no",
+    "usageApi": "no",
+    "billingExport": "no",
+    "granularity": "None",
+    "grade": "F",
+    "website": "https://soundraw.io",
+    "notes": "Subscription-based flat-rate pricing. No public API for billing or usage tracking. Purely a SaaS subscription managed through the website."
+  },
+  {
+    "name": "MiniMax",
+    "slug": "minimax",
+    "costApi": "no",
+    "usageApi": "partial",
+    "billingExport": "no",
+    "granularity": "Per-request token counts",
+    "grade": "D",
+    "website": "https://minimax.io",
+    "notes": "API responses include input/output token counts. No usage history API, no billing API, no export. Must self-instrument by logging per-request tokens and multiplying by published rates."
+  },
+  {
+    "name": "Black Forest Labs",
+    "slug": "blackforestlabs",
+    "costApi": "no",
+    "usageApi": "no",
+    "billingExport": "no",
+    "granularity": "None",
+    "grade": "F",
+    "website": "https://blackforestlabs.ai",
+    "notes": "Creators of FLUX. No dedicated billing or usage tracking API. If accessed through partners (Replicate, fal.ai), the partner's billing APIs apply instead. Direct API has no cost or usage endpoints."
   }
 ]

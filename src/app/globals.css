@@ -138,12 +138,12 @@
   background-size: 256px 256px;
 }
 
-/* Grade colors */
-.grade-a { --grade-bg: rgba(34, 197, 94, 0.12); --grade-text: #4ade80; --grade-border: rgba(34, 197, 94, 0.25); }
-.grade-b { --grade-bg: rgba(45, 212, 191, 0.12); --grade-text: #5eead4; --grade-border: rgba(45, 212, 191, 0.25); }
-.grade-c { --grade-bg: rgba(234, 179, 8, 0.12); --grade-text: #facc15; --grade-border: rgba(234, 179, 8, 0.25); }
-.grade-d { --grade-bg: rgba(249, 115, 22, 0.12); --grade-text: #fb923c; --grade-border: rgba(249, 115, 22, 0.25); }
-.grade-f { --grade-bg: rgba(239, 68, 68, 0.12); --grade-text: #f87171; --grade-border: rgba(239, 68, 68, 0.25); }
+/* Grade colors -- blue/violet spectrum, distinct from status green/yellow/red */
+.grade-a { --grade-bg: rgba(99, 102, 241, 0.12); --grade-text: #818cf8; --grade-border: rgba(99, 102, 241, 0.25); }
+.grade-b { --grade-bg: rgba(96, 165, 250, 0.12); --grade-text: #93c5fd; --grade-border: rgba(96, 165, 250, 0.25); }
+.grade-c { --grade-bg: rgba(167, 139, 250, 0.12); --grade-text: #c4b5fd; --grade-border: rgba(167, 139, 250, 0.25); }
+.grade-d { --grade-bg: rgba(156, 163, 175, 0.12); --grade-text: #9ca3af; --grade-border: rgba(156, 163, 175, 0.25); }
+.grade-f { --grade-bg: rgba(107, 114, 128, 0.12); --grade-text: #6b7280; --grade-border: rgba(107, 114, 128, 0.25); }
 
 /* Status colors */
 .status-yes { --status-bg: rgba(34, 197, 94, 0.10); --status-text: #4ade80; --status-border: rgba(34, 197, 94, 0.20); }
