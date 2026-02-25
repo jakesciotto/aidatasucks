@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Placeholder Corp",
+    "slug": "placeholder-corp",
+    "costApi": "yes",
+    "usageApi": "partial",
+    "billingExport": "no",
+    "granularity": "Per-model",
+    "dataDelay": "~24h",
+    "grade": "C",
+    "notes": "Placeholder entry"
+  },
+  {
+    "name": "Example AI",
+    "slug": "example-ai",
+    "costApi": "no",
+    "usageApi": "no",
+    "billingExport": "no",
+    "granularity": "None",
+    "dataDelay": "N/A",
+    "grade": "F",
+    "notes": "Placeholder entry"
+  },
+  {
+    "name": "Acme Models",
+    "slug": "acme-models",
+    "costApi": "yes",
+    "usageApi": "yes",
+    "billingExport": "yes",
+    "granularity": "Per-model, per-token",
+    "dataDelay": "Real-time",
+    "grade": "A",
+    "notes": "Placeholder entry"
+  },
+  {
+    "name": "FooBar ML",
+    "slug": "foobar-ml",
+    "costApi": "partial",
+    "usageApi": "yes",
+    "billingExport": "partial",
+    "granularity": "Aggregate only",
+    "dataDelay": "~48h",
+    "grade": "D",
+    "notes": "Placeholder entry"
+  }
+]
