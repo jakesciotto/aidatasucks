@@ -6,7 +6,10 @@ import { VendorTable } from "@/components/vendor-table";
 const SCORE = { yes: 2, partial: 1, no: 0 };
 
 function calcGrade(vendor) {
-  const base = SCORE[vendor.costApi] + SCORE[vendor.usageApi] + SCORE[vendor.billingExport];
+  const base =
+    SCORE[vendor.costApi] +
+    SCORE[vendor.usageApi] +
+    SCORE[vendor.billingExport];
   const hasVisibility = vendor.costApi !== "no" || vendor.usageApi !== "no";
   const score = base + (hasVisibility ? 1 : 0);
   if (score >= 6) return "A";
@@ -37,7 +40,9 @@ export default function Home() {
         <h1 className="animate-in-up delay-2 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
           Which AI vendors actually
           <br />
-          <span className="text-muted-foreground">let you track what you spend?</span>
+          <span className="text-muted-foreground">
+            let you track what you spend?
+          </span>
         </h1>
         <p className="animate-in-up delay-3 max-w-2xl font-mono text-sm leading-relaxed text-muted-foreground">
           A comparison of cost APIs, usage endpoints, and billing exports across
@@ -62,7 +67,9 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div className="rounded-lg border border-border/50 bg-card/50 px-3 py-2">
               <span className="text-indigo-400 font-semibold">A</span>
-              <span className="ml-2">Full API coverage, real-time, granular data</span>
+              <span className="ml-2">
+                Full API coverage, real-time, granular data
+              </span>
             </div>
             <div className="rounded-lg border border-border/50 bg-card/50 px-3 py-2">
               <span className="text-blue-300 font-semibold">B</span>
@@ -70,7 +77,9 @@ export default function Home() {
             </div>
             <div className="rounded-lg border border-border/50 bg-card/50 px-3 py-2">
               <span className="text-violet-300 font-semibold">C</span>
-              <span className="ml-2">Partial coverage, significant limitations</span>
+              <span className="ml-2">
+                Partial coverage, significant limitations
+              </span>
             </div>
             <div className="rounded-lg border border-border/50 bg-card/50 px-3 py-2">
               <span className="text-pink-400 font-semibold">D</span>
@@ -78,7 +87,9 @@ export default function Home() {
             </div>
             <div className="rounded-lg border border-border/50 bg-card/50 px-3 py-2 sm:col-span-2">
               <span className="text-rose-400 font-semibold">F</span>
-              <span className="ml-2">Flying blind. No programmatic cost visibility.</span>
+              <span className="ml-2">
+                Flying blind. No programmatic cost visibility.
+              </span>
             </div>
           </div>
         </div>
