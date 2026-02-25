@@ -164,30 +164,30 @@ export function VendorTable({ vendors }) {
 
       {/* Desktop: Table */}
       <div className="hidden rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm md:block">
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow className="border-border/50 hover:bg-transparent">
               <TableHead
-                className="h-12 cursor-pointer select-none px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+                className="h-12 w-[18%] cursor-pointer select-none px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => toggleSort("name")}
               >
                 Vendor
                 <SortIcon field="name" sortField={sortField} sortDir={sortDir} />
               </TableHead>
-              <TableHead className="h-12 px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-12 w-[12%] px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
                 Cost API
               </TableHead>
-              <TableHead className="h-12 px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-12 w-[12%] px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
                 Usage API
               </TableHead>
-              <TableHead className="h-12 px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-12 w-[14%] px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
                 Billing Export
               </TableHead>
-              <TableHead className="h-12 px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-12 w-[34%] px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
                 Granularity
               </TableHead>
               <TableHead
-                className="h-12 cursor-pointer select-none px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+                className="h-12 w-[10%] cursor-pointer select-none px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => toggleSort("grade")}
               >
                 Grade
