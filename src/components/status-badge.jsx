@@ -14,7 +14,7 @@ const statusConfig = {
 };
 
 export function StatusBadge({ status }) {
-  const config = statusConfig[status];
+  const config = statusConfig[status] ?? { label: status, className: "" };
   return (
     <span
       className={`${config.className} inline-flex items-center rounded-full border px-2.5 py-0.5 font-mono text-xs font-medium`}

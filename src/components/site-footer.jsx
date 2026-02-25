@@ -1,4 +1,14 @@
+"use client";
+
+import posthog from "posthog-js";
+
 export function SiteFooter() {
+  const handleGitHubClick = () => {
+    posthog.capture("github_pr_link_clicked", {
+      destination_url: "https://github.com/jakesciotto/aidatasucks",
+    });
+  };
+
   return (
     <footer className="animate-in-up delay-6 border-t border-border/50 bg-background/50">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
@@ -9,6 +19,7 @@ export function SiteFooter() {
             className="text-foreground underline decoration-muted-foreground/30 underline-offset-4 transition-colors hover:decoration-foreground"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleGitHubClick}
           >
             Open a PR
           </a>

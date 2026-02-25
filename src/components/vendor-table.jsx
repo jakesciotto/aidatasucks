@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
+import posthog from "posthog-js";
 import {
   Table,
   TableBody,
@@ -42,12 +43,22 @@ function SortIcon({ field, sortField, sortDir }) {
 }
 
 function VendorName({ vendor, className = "" }) {
+  const handleClick = () => {
+    posthog.capture("vendor_link_clicked", {
+      vendor_name: vendor.name,
+      vendor_slug: vendor.slug,
+      vendor_grade: vendor.grade,
+      destination_url: vendor.website,
+    });
+  };
+
   return (
     <a
       href={vendor.website}
       target="_blank"
       rel="noopener noreferrer"
       className={`group inline-flex items-center gap-2.5 ${className}`}
+      onClick={handleClick}
     >
       <span className="inline-flex h-6 w-6 items-center justify-center rounded bg-white/90 p-0.5">
         <Image
@@ -118,12 +129,17 @@ export function VendorTable({ vendors }) {
   const [sortDir, setSortDir] = useState("asc");
 
   const toggleSort = (field) => {
+    const newDir = sortField === field ? (sortDir === "asc" ? "desc" : "asc") : "asc";
     if (sortField === field) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc");
+      setSortDir(newDir);
     } else {
       setSortField(field);
       setSortDir("asc");
     }
+    posthog.capture("vendor_sorted", {
+      sort_field: field,
+      sort_direction: newDir,
+    });
   };
 
   const sorted = useMemo(() => {
@@ -153,7 +169,15 @@ export function VendorTable({ vendors }) {
           <Input
             placeholder="Filter vendors..."
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilter(value);
+              if (value.length > 0) {
+                posthog.capture("vendor_searched", {
+                  search_query: value,
+                });
+              }
+            }}
             className="pl-9 font-mono text-sm"
           />
         </div>

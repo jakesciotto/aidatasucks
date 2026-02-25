@@ -11,7 +11,7 @@ export function SiteHeader() {
           </span>
         </a>
         <span className="text-[11px] text-muted-foreground/50 font-mono">
-          updated 2025-02-25
+          updated 2026-02-25
         </span>
       </div>
     </header>

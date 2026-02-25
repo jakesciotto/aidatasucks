@@ -10,7 +10,7 @@ A single-page site with a sortable, filterable comparison table. Each vendor is 
 
 - Next.js (static export)
 - Tailwind CSS + shadcn/ui
-- Vendor data lives in `src/data/vendors.json`
+- Vendor data lives in `src/data/vendors.yaml`
 
 ## Next Up
 
