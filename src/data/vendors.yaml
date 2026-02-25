@@ -42,10 +42,10 @@
 
 - name: OpenAI
   slug: openai
-  costApi: partial
+  costApi: yes
   usageApi: yes
   billingExport: partial
-  granularity: Per-model, per-request, per-API-key
+  granularity: Per-model, per-request, tokens aggregated to API key*
 
   website: https://openai.com
   notes: >
@@ -55,7 +55,7 @@
 
 - name: Anthropic
   slug: anthropic
-  costApi: partial
+  costApi: yes
   usageApi: yes
   billingExport: partial
   granularity: Per-model, per-request tokens
@@ -107,8 +107,8 @@
 
 - name: Runware
   slug: runware
-  costApi: no
-  usageApi: partial
+  costApi: partial
+  usageApi: yes
   billingExport: partial
   granularity: Credit balances; per-request cost in response
 
@@ -159,9 +159,9 @@
 - name: Replicate
   slug: replicate
   costApi: no
-  usageApi: no
+  usageApi: partial
   billingExport: no
-  granularity: Not on roadmap after acquisition by Cloudflare
+  granularity: Development not on roadmap post Cloudflare acquisition
 
   website: https://replicate.com
   notes: >
@@ -172,7 +172,7 @@
 - name: Recraft
   slug: recraft
   costApi: partial
-  usageApi: yes
+  usageApi: partial
   billingExport: no
   granularity: Credit balance via API, per-operation credit costs
 
@@ -197,7 +197,7 @@
 
 - name: Mureka
   slug: mureka
-  costApi: partial
+  costApi: yes
   usageApi: partial
   billingExport: no
   granularity: Account balance via billing endpoint
