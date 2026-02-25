@@ -155,47 +155,55 @@
 
 - name: Recraft
   slug: recraft
-  costApi: no
-  usageApi: no
+  costApi: partial
+  usageApi: yes
   billingExport: no
-  granularity: Pending research
+  granularity: Credit balance via API, per-operation credit costs
 
   website: https://recraft.ai
   notes: >
-    Pending research.
+    GET /v1/users/me returns credit balance. Per-operation costs documented
+    (1 credit/raster, 2/vector, 20/creative upscale). No billing export.
+    Web app and API have separate pricing models.
 
 - name: Bria
   slug: bria
   costApi: no
   usageApi: no
   billingExport: no
-  granularity: Pending research
+  granularity: None
 
   website: https://bria.ai
   notes: >
-    Pending research.
+    No documented API endpoints for billing, credits, or usage. Action-based
+    billing ($0.005-$0.08 per action). HTTP 429 on limit exceeded. All billing
+    through platform dashboard only.
 
 - name: Mureka
   slug: mureka
-  costApi: no
-  usageApi: no
+  costApi: partial
+  usageApi: partial
   billingExport: no
-  granularity: Pending research
+  granularity: Account balance via billing endpoint
 
   website: https://mureka.ai
   notes: >
-    Pending research.
+    Billing endpoint provides account balance and credit usage. Each generation
+    consumes credits (3 cents/song). Credits follow FIFO spending. Website and
+    API credit systems are separate. No billing export.
 
 - name: BytePlus
   slug: byteplus
   costApi: no
-  usageApi: no
+  usageApi: partial
   billingExport: no
-  granularity: Pending research
+  granularity: Per-request token counts in API response
 
   website: https://byteplus.com
   notes: >
-    Pending research.
+    API responses include usage field with input/output token counts for
+    ModelArk LLM calls. No dedicated billing API. Token-based hourly
+    pay-as-you-go pricing. Billing details in console only.
 
 - name: Luma
   slug: luma
