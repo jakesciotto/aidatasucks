@@ -49,13 +49,15 @@ function VendorName({ vendor, className = "" }) {
       rel="noopener noreferrer"
       className={`group inline-flex items-center gap-2.5 ${className}`}
     >
-      <Image
-        src={`/logos/${vendor.slug}.png`}
-        alt={`${vendor.name} logo`}
-        width={20}
-        height={20}
-        className="rounded-sm"
-      />
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded bg-white/90 p-0.5">
+        <Image
+          src={`/logos/${vendor.slug}.png`}
+          alt={`${vendor.name} logo`}
+          width={20}
+          height={20}
+          className="rounded-sm"
+        />
+      </span>
       <span className="font-medium transition-colors group-hover:text-foreground">
         {vendor.name}
       </span>

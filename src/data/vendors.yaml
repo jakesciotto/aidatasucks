@@ -153,6 +153,61 @@
     with costs. Hardware and model-level granularity. No billing export,
     but strong per-request cost visibility.
 
+- name: Recraft
+  slug: recraft
+  costApi: no
+  usageApi: no
+  billingExport: no
+  granularity: None
+
+  website: https://recraft.ai
+  notes: >
+    Pending research.
+
+- name: Bria
+  slug: bria
+  costApi: no
+  usageApi: no
+  billingExport: no
+  granularity: None
+
+  website: https://bria.ai
+  notes: >
+    Pending research.
+
+- name: Mureka
+  slug: mureka
+  costApi: no
+  usageApi: no
+  billingExport: no
+  granularity: None
+
+  website: https://mureka.ai
+  notes: >
+    Pending research.
+
+- name: BytePlus
+  slug: byteplus
+  costApi: no
+  usageApi: no
+  billingExport: no
+  granularity: None
+
+  website: https://byteplus.com
+  notes: >
+    Pending research.
+
+- name: Luma
+  slug: luma
+  costApi: no
+  usageApi: no
+  billingExport: no
+  granularity: None
+
+  website: https://lumalabs.ai
+  notes: >
+    Pending research.
+
 - name: Black Forest Labs
   slug: blackforestlabs
   costApi: no
