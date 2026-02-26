@@ -109,8 +109,8 @@ function VendorCard({ vendor }) {
           <StatusBadge status={vendor.usageApi} />
         </div>
         <div className="space-y-1">
-          <span className="block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-            Billing
+          <span className="block font-mono text-[10px] uppercase tracking-wider text-muted-foreground leading-tight">
+            Billing Export
           </span>
           <StatusBadge status={vendor.billingExport} />
         </div>
