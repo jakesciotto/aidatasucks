@@ -246,3 +246,75 @@
     Creators of FLUX. Credits endpoint returns remaining balance. No cost
     breakdown per request, no billing export. Partner platforms (Replicate,
     fal.ai) offer better cost visibility.
+
+- name: Mistral AI
+  slug: mistral
+  costApi: partial
+  usageApi: yes
+  billingExport: partial
+  granularity: Per-model, per-request tokens
+
+  website: https://mistral.ai
+  notes: >
+    Every API response includes a usage object with prompt_tokens,
+    completion_tokens, and total_tokens. La Plateforme console exposes usage
+    dashboards with filtering by model and time range. CSV export available
+    from dashboard. No dedicated programmatic usage history endpoint or
+    scheduled export. Must compute cost from token counts and published rates.
+
+- name: Cohere
+  slug: cohere
+  costApi: partial
+  usageApi: yes
+  billingExport: partial
+  granularity: Per-model, per-request (input tokens, output tokens, search units)
+
+  website: https://cohere.com
+  notes: >
+    API responses include meta.billed_units with input_tokens, output_tokens,
+    and search_units depending on the endpoint. Dashboard provides usage
+    breakdown by model and API key with CSV export. No programmatic billing
+    API or scheduled export. Enterprise plans include more granular reporting.
+
+- name: Together AI
+  slug: together
+  costApi: yes
+  usageApi: yes
+  billingExport: partial
+  granularity: Per-model, per-request tokens and dollar cost
+
+  website: https://together.ai
+  notes: >
+    API responses return usage with prompt_tokens and completion_tokens.
+    Usage dashboard with per-model breakdown and CSV export. Programmatic
+    access to usage data via API. Per-request cost computable from published
+    per-token rates. Strong cost visibility relative to most inference providers.
+
+- name: Groq
+  slug: groq
+  costApi: partial
+  usageApi: partial
+  billingExport: no
+  granularity: Per-model, per-request tokens
+
+  website: https://groq.com
+  notes: >
+    API responses include usage object with prompt_tokens, completion_tokens,
+    and total_tokens. Response headers expose queue time and processing time.
+    Console has a usage dashboard but no programmatic usage history endpoint
+    or billing export. Must self-instrument by logging per-request token counts.
+
+- name: fal.ai
+  slug: fal
+  costApi: partial
+  usageApi: partial
+  billingExport: no
+  granularity: Per-request cost in response, credit balance via API
+
+  website: https://fal.ai
+  notes: >
+    Queue result responses include billing metadata with cost per request.
+    Credit balance accessible programmatically. No aggregated usage history
+    endpoint, no billing export. Offers better cost transparency than running
+    models like FLUX directly through Black Forest Labs. Must log per-request
+    costs yourself for aggregation.

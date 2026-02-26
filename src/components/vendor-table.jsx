@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/status-badge";
 import { GradeBadge } from "@/components/grade-badge";
 
-const gradeOrder = { A: 1, B: 2, C: 3, D: 4, F: 5 };
+const gradeOrder = { "A+": 1, "A-": 2, B: 3, "B-": 4, C: 5, D: 6, F: 7 };
 
 function SortIcon({ field, sortField, sortDir }) {
   const isActive = sortField === field;

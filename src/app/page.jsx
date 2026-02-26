@@ -7,13 +7,15 @@ import { GradeBadge } from "@/components/grade-badge";
 const SCORE = { yes: 2, partial: 1, no: 0 };
 
 function calcGrade(vendor) {
-  const base =
-    SCORE[vendor.costApi] +
-    SCORE[vendor.usageApi] +
-    SCORE[vendor.billingExport];
-  const hasVisibility = vendor.costApi !== "no" || vendor.usageApi !== "no";
+  const { costApi, usageApi, billingExport } = vendor;
+
+  if (costApi === "yes" && usageApi === "yes" && billingExport === "yes") return "A+";
+  if (costApi === "yes" && usageApi === "yes" && billingExport === "partial") return "A-";
+  if (costApi !== "no" && usageApi !== "no" && billingExport === "no") return "B-";
+
+  const base = SCORE[costApi] + SCORE[usageApi] + SCORE[billingExport];
+  const hasVisibility = costApi !== "no" || usageApi !== "no";
   const score = base + (hasVisibility ? 1 : 0);
-  if (score >= 6) return "A";
   if (score >= 4) return "B";
   if (score >= 3) return "C";
   if (score >= 1) return "D";
@@ -71,12 +73,20 @@ export default function Home() {
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
-              <GradeBadge grade="A" />
-              <span>Full API coverage, real-time, granular data</span>
+              <GradeBadge grade="A+" />
+              <span>Full coverage — cost API, usage API, and billing export</span>
+            </div>
+            <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
+              <GradeBadge grade="A-" />
+              <span>Full cost and usage APIs, partial billing export</span>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
               <GradeBadge grade="B" />
-              <span>Good coverage, minor gaps or delays</span>
+              <span>Good visibility, partial billing export</span>
+            </div>
+            <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
+              <GradeBadge grade="B-" />
+              <span>Good cost/usage visibility, no billing export</span>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
               <GradeBadge grade="C" />

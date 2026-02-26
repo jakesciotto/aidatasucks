@@ -17,6 +17,7 @@ A single-page site with a sortable, filterable comparison table. Each vendor is 
 - Improvement of the dataset by addition of fields: `scope`, `auth type`, `unit`
 - In a more fun & perfect world, some CSMs at these vendors reach out to me to confirm and I slap a `verification` badge on their line item
 - More fun filtering
+- Click on the provider, card expands with more information
 
 ## Contributing
 
