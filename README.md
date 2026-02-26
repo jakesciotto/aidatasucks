@@ -1,24 +1,21 @@
 # aidatasucks.com
 
-A static comparison site grading AI vendors on cost and usage API transparency. Built for FinOps teams who need programmatic access to their AI spend data.
+yeah yeah whatever who am i to decide who gets what grade? what are you going to do about it? anyway, it's
+a static comparison site grading AI vendors on cost and usage API transparency. if it's helpful to you, great. if not,
+i don't know man
 
 ## What this is
 
-A single-page site with a sortable, filterable comparison table. Each vendor is graded A-F based on whether they provide a cost API, usage API, and billing export -- and how usable those APIs actually are. There's a slight weight for certain conditions.
-
-## Stack
-
-- Next.js (static export)
-- Tailwind CSS + shadcn/ui
-- Vendor data lives in `src/data/vendors.yaml`
+can i get cost from your api? great. can i get usage from your api? cool. can i get both? do you have some sort of
+billing export? sick
 
 ## Next Up
 
-- Improvement of the dataset by addition of fields: `scope`, `auth type`, `unit`
-- In a more fun & perfect world, some CSMs at these vendors reach out to me to confirm and I slap a `verification` badge on their line item
-- More fun filtering
-- Click on the provider, card expands with more information
+- improvement of the dataset by addition of fields: `scope`, `auth type`, `unit`
+- in a more fun & perfect world, some CSMs at these vendors reach out to me to confirm and I slap a `verification` badge on their line item
+- more fun filtering
+- click on the provider, card expands with more information
 
 ## Contributing
 
-Something wrong? Don't know what to tell you dog. Open a PR.
+something wrong? don't know what to tell you dog. open a PR. go tell the mayor
