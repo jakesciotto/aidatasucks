@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import posthog from "posthog-js";
 import {
@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/status-badge";
 import { GradeBadge } from "@/components/grade-badge";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 const gradeOrder = { "A+": 1, "A-": 2, B: 3, "B-": 4, C: 5, D: 6, F: 7 };
 
@@ -72,6 +73,7 @@ function VendorName({ vendor, className = "" }) {
       <span className="font-medium transition-colors group-hover:text-foreground">
         {vendor.name}
       </span>
+      {vendor.verified && <VerifiedBadge />}
       <svg
         width="12"
         height="12"
@@ -123,8 +125,84 @@ function VendorCard({ vendor }) {
   );
 }
 
+const DOMAIN_LABELS = {
+  hyperscaler: "Hyperscaler",
+  independent: "Independent",
+  inference: "Inference",
+  generative: "Generative",
+  infrastructure: "Infrastructure",
+};
+
+function DomainDropdown({ domainFilter, setDomainFilter }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handleOutsideClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
+  const toggle = (domain) => {
+    setDomainFilter((prev) => {
+      const next = new Set(prev);
+      next.has(domain) ? next.delete(domain) : next.add(domain);
+      posthog.capture("vendor_domain_filtered", {
+        active_domains: [...next],
+      });
+      return next;
+    });
+  };
+
+  const activeCount = domainFilter.size;
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        Domain{activeCount > 0 ? ` (${activeCount})` : ""}
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+        >
+          <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-full z-10 mt-1 min-w-[160px] rounded-md border border-border bg-card p-1 shadow-md">
+          {Object.entries(DOMAIN_LABELS).map(([value, label]) => (
+            <label
+              key={value}
+              className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            >
+              <input
+                type="checkbox"
+                checked={domainFilter.has(value)}
+                onChange={() => toggle(value)}
+                className="accent-foreground"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function VendorTable({ vendors }) {
   const [filter, setFilter] = useState("");
+  const [domainFilter, setDomainFilter] = useState(new Set());
   const [sortField, setSortField] = useState("grade");
   const [sortDir, setSortDir] = useState("asc");
 
@@ -143,15 +221,17 @@ export function VendorTable({ vendors }) {
   };
 
   const sorted = useMemo(() => {
-    const filtered = vendors.filter((v) =>
-      v.name.toLowerCase().includes(filter.toLowerCase())
-    );
+    const filtered = vendors.filter((v) => {
+      const matchesText = v.name.toLowerCase().includes(filter.toLowerCase());
+      const matchesDomain = domainFilter.size === 0 || domainFilter.has(v.domain);
+      return matchesText && matchesDomain;
+    });
     return [...filtered].sort((a, b) => {
       const mul = sortDir === "asc" ? 1 : -1;
       if (sortField === "name") return mul * a.name.localeCompare(b.name);
       return mul * (gradeOrder[a.grade] - gradeOrder[b.grade]);
     });
-  }, [vendors, filter, sortField, sortDir]);
+  }, [vendors, filter, domainFilter, sortField, sortDir]);
 
   return (
     <div className="space-y-4">
@@ -181,6 +261,7 @@ export function VendorTable({ vendors }) {
             className="pl-9 font-mono text-sm"
           />
         </div>
+        <DomainDropdown domainFilter={domainFilter} setDomainFilter={setDomainFilter} />
         <span className="font-mono text-xs text-muted-foreground">
           {sorted.length} vendor{sorted.length !== 1 ? "s" : ""}
         </span>
@@ -224,7 +305,7 @@ export function VendorTable({ vendors }) {
               <TableRow
                 key={vendor.slug}
                 className="animate-in-fade border-border/50 transition-colors hover:bg-muted/30"
-                style={{ animationDelay: `${500 + i * 40}ms` }}
+                style={{ animationDelay: `${i * 30}ms` }}
               >
                 <TableCell className="px-4 py-3">
                   <VendorName vendor={vendor} />
@@ -256,7 +337,7 @@ export function VendorTable({ vendors }) {
           <div
             key={vendor.slug}
             className="animate-in-up"
-            style={{ animationDelay: `${500 + i * 60}ms` }}
+            style={{ animationDelay: `${i * 40}ms` }}
           >
             <VendorCard vendor={vendor} />
           </div>

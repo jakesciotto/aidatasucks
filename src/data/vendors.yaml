@@ -1,5 +1,27 @@
+# --------------------------------------------------------------------------------
+# vendors.yaml
+#
+# A manually updated list of AI vendors and relevant metadata to the project.
+#
+# TODO: Add 'unit' to the metadata
+# TODO: Add a field for requiring a third-party observability tool
+#
+# Domain values: hyperscaler, independent, inference, generative, infrastructure
+#
+# costApi values:
+#   - yes: Actual dollar values returned
+#   - no: No actual dollar values returned
+#   - partial: Requires some form of calculation (credits * rate) to obtain cost
+#
+# verified: true — we've built a connector for this provider (shows badge in UI)
+# --------------------------------------------------------------------------------
+
+# ------------------------------------
+# Hyperscalers
+# ------------------------------------
 - name: AWS
   slug: aws
+  domain: hyperscaler
   costApi: yes
   usageApi: yes
   billingExport: yes
@@ -13,6 +35,7 @@
 
 - name: Azure
   slug: azure
+  domain: hyperscaler
   costApi: yes
   usageApi: yes
   billingExport: yes
@@ -29,6 +52,7 @@
 
 - name: GCP
   slug: gcp
+  domain: hyperscaler
   costApi: yes
   usageApi: yes
   billingExport: yes
@@ -40,8 +64,26 @@
     Cloud Monitoring API for token usage and latency. Supports labels for
     cost attribution.
 
+- name: Oracle
+  slug: oracle
+  domain: hyperscaler
+  costApi: yes
+  usageApi: no
+  billingExport: yes
+  granularity: SKU and character-transaction level detail
+
+  website: https://docs.oracle.com
+  notes: >
+    Has SKU/character-transaction level detail, but not token-level spend detail.
+    Requires a third-party observability tool.
+
+# ------------------------------------
+# Frontier Model Providers
+# ------------------------------------
+
 - name: OpenAI
   slug: openai
+  domain: independent
   costApi: yes
   usageApi: yes
   billingExport: partial
@@ -55,6 +97,7 @@
 
 - name: Anthropic
   slug: anthropic
+  domain: independent
   costApi: yes
   usageApi: yes
   billingExport: partial
@@ -66,189 +109,13 @@
     (including cache tokens). Admin API for org-level usage. CSV export
     from console. Must calculate costs from token counts yourself.
 
-- name: ElevenLabs
-  slug: elevenlabs
-  costApi: partial
-  usageApi: yes
-  billingExport: partial
-  granularity: Per-character, per-product, per-voice, per-API-key
-
-  website: https://elevenlabs.io
-  notes: >
-    GET /v1/usage/character-stats for usage metrics with filtering by voice,
-    product, and API key. GET /v1/user/subscription for billing period and
-    limits. Dashboard CSV export available but no programmatic export endpoint.
-
-- name: Leonardo.ai
-  slug: leonardo
-  costApi: partial
-  usageApi: yes
-  billingExport: no
-  granularity: Credit balance, per-generation cost via pricing calculator
-
-  website: https://leonardo.ai
-  notes: >
-    GET /api/rest/v1/me returns credit balances. Pricing calculator endpoint
-    estimates cost per generation config. No CSV or billing export. Invoices
-    downloadable as PDF only from dashboard.
-
-- name: Runway
-  slug: runway
-  costApi: partial
-  usageApi: partial
-  billingExport: no
-  granularity: Credit-based
-
-  website: https://runwayml.com
-  notes: >
-    Has cost and usage APIs but they are not publicly documented.
-    Credit-based system with limited programmatic visibility. No billing
-    export.
-
-- name: Runware
-  slug: runware
-  costApi: partial
-  usageApi: yes
-  billingExport: partial
-  granularity: Credit balances; per-request cost in response
-
-  website: https://runware.ai
-  notes: >
-    Returns cost field per API response, but no aggregated usage history
-    endpoint, no billing API, no export. You must build your own tracking
-    by logging per-request costs.
-
-- name: Marqo
-  slug: marqo
-  costApi: no
-  usageApi: partial
-  billingExport: no
-  granularity: Index-level metrics
-
-  website: https://marqo.ai
-  notes: >
-    Index statistics (document count, storage) via API. No billing or cost
-    API. Infrastructure-based pricing (per-index, per-hour). Dashboard-only
-    billing visibility.
-
-- name: Soundraw
-  slug: soundraw
-  costApi: no
-  usageApi: no
-  billingExport: no
-  granularity: None
-
-  website: https://soundraw.io
-  notes: >
-    Subscription-based flat-rate pricing. No public API for billing or
-    usage tracking. Purely a SaaS subscription managed through the website.
-
-- name: MiniMax.io
-  slug: minimax
-  costApi: no
-  usageApi: no
-  billingExport: yes
-  granularity: Per-request token counts
-
-  website: https://minimax.io
-  notes: >
-    API responses include input/output token counts. No usage history API,
-    no billing API, no export. Must self-instrument by logging per-request
-    tokens and multiplying by published rates.
-
-- name: Replicate
-  slug: replicate
-  costApi: no
-  usageApi: partial
-  billingExport: no
-  granularity: Development not on roadmap post Cloudflare acquisition
-
-  website: https://replicate.com
-  notes: >
-    Predictions API returns cost per run. GET /predictions lists all runs
-    with costs. Hardware and model-level granularity. No billing export,
-    but strong per-request cost visibility.
-
-- name: Recraft
-  slug: recraft
-  costApi: partial
-  usageApi: partial
-  billingExport: no
-  granularity: Credit balance via API, per-operation credit costs
-
-  website: https://recraft.ai
-  notes: >
-    GET /v1/users/me returns credit balance. Per-operation costs documented
-    (1 credit/raster, 2/vector, 20/creative upscale). No billing export.
-    Web app and API have separate pricing models.
-
-- name: Bria
-  slug: bria
-  costApi: no
-  usageApi: no
-  billingExport: no
-  granularity: None
-
-  website: https://bria.ai
-  notes: >
-    No documented API endpoints for billing, credits, or usage. Action-based
-    billing ($0.005-$0.08 per action). HTTP 429 on limit exceeded. All billing
-    through platform dashboard only.
-
-- name: Mureka
-  slug: mureka
-  costApi: yes
-  usageApi: partial
-  billingExport: no
-  granularity: Account balance via billing endpoint
-
-  website: https://mureka.ai
-  notes: >
-    Billing endpoint provides account balance and credit usage. Each generation
-    consumes credits (3 cents/song). Credits follow FIFO spending. Website and
-    API credit systems are separate. No billing export.
-
-- name: BytePlus
-  slug: byteplus
-  costApi: no
-  usageApi: partial
-  billingExport: no
-  granularity: Per-request token counts in API response
-
-  website: https://byteplus.com
-  notes: >
-    API responses include usage field with input/output token counts for
-    ModelArk LLM calls. No dedicated billing API. Token-based hourly
-    pay-as-you-go pricing. Billing details in console only.
-
-- name: Luma
-  slug: luma
-  costApi: yes
-  usageApi: yes
-  billingExport: no
-  granularity: Credit balance via API, per-generation credit costs
-
-  website: https://lumalabs.ai
-  notes: >
-    GET /dream-machine/v1/credits returns balance programmatically.
-    Well-documented per-generation costs (4 credits/image, 160-4480/video).
-    No CSV export. Web and API credits are separate and non-transferable.
-
-- name: Black Forest Labs
-  slug: blackforestlabs
-  costApi: no
-  usageApi: partial
-  billingExport: no
-  granularity: Credit balance
-
-  website: https://blackforestlabs.ai
-  notes: >
-    Creators of FLUX. Credits endpoint returns remaining balance. No cost
-    breakdown per request, no billing export. Partner platforms (Replicate,
-    fal.ai) offer better cost visibility.
+# ------------------------------------
+# Independent Model Labs
+# ------------------------------------
 
 - name: Mistral AI
   slug: mistral
+  domain: independent
   costApi: partial
   usageApi: yes
   billingExport: partial
@@ -264,6 +131,7 @@
 
 - name: Cohere
   slug: cohere
+  domain: independent
   costApi: partial
   usageApi: yes
   billingExport: partial
@@ -276,22 +144,56 @@
     breakdown by model and API key with CSV export. No programmatic billing
     API or scheduled export. Enterprise plans include more granular reporting.
 
+- name: MiniMax.io
+  slug: minimax
+  domain: independent
+  costApi: no
+  usageApi: no
+  billingExport: yes
+  granularity: Per-request token counts
+
+  website: https://minimax.io
+  notes: >
+    API responses include input/output token counts. No usage history API,
+    no billing API, no export. Must self-instrument by logging per-request
+    tokens and multiplying by published rates.
+
+- name: BytePlus
+  slug: byteplus
+  domain: independent
+  costApi: no
+  usageApi: partial
+  billingExport: no
+  granularity: Per-request token counts in API response
+
+  website: https://byteplus.com
+  notes: >
+    API responses include usage field with input/output token counts for
+    ModelArk LLM calls. No dedicated billing API. Token-based hourly
+    pay-as-you-go pricing. Billing details in console only.
+
+# ------------------------------------
+# Inference Providers
+# ------------------------------------
+
 - name: Together AI
   slug: together
-  costApi: yes
-  usageApi: yes
+  domain: inference
+  costApi: no
+  usageApi: partial
   billingExport: partial
-  granularity: Per-model, per-request tokens and dollar cost
+  granularity: Per-request token counts in response only
 
   website: https://together.ai
   notes: >
-    API responses return usage with prompt_tokens and completion_tokens.
-    Usage dashboard with per-model breakdown and CSV export. Programmatic
-    access to usage data via API. Per-request cost computable from published
-    per-token rates. Strong cost visibility relative to most inference providers.
+    API responses include prompt_tokens and completion_tokens in the usage
+    object, but these are not stored or queryable after the fact. No dedicated
+    usage history endpoint or cost API in public docs. Dashboard CSV export
+    available. Must self-instrument by logging per-request token counts.
 
 - name: Groq
   slug: groq
+  domain: inference
   costApi: partial
   usageApi: partial
   billingExport: no
@@ -304,17 +206,205 @@
     Console has a usage dashboard but no programmatic usage history endpoint
     or billing export. Must self-instrument by logging per-request token counts.
 
+- name: Replicate
+  slug: replicate
+  domain: inference
+  costApi: partial
+  usageApi: partial
+  billingExport: no
+  granularity: Compute seconds per run; multiply by hardware rate for USD
+
+  website: https://replicate.com
+  notes: >
+    Predictions API returns metrics.predict_time (GPU/CPU seconds consumed)
+    per run. Must multiply by the model's published hardware rate (e.g.
+    $0.0001/sec for CPU, up to $0.0122/sec for 8x H100) to get USD cost.
+    No billing export. Cost visibility roadmap deprioritized post-Cloudflare
+    acquisition.
+
 - name: fal.ai
   slug: fal
+  domain: inference
+  costApi: no
+  usageApi: partial
+  billingExport: no
+  granularity: Per-request compute time; separate pricing and usage platform APIs
+
+  website: https://fal.ai
+  notes: >
+    Queue result responses contain only data and requestId — no cost field.
+    Separate platform APIs exist: GET /v1/models/pricing returns USD unit
+    prices per endpoint, GET /v1/models/usage returns historical usage with
+    cost in USD. No billing export. Must use platform APIs separately from
+    the inference API to track spend.
+
+# ------------------------------------
+# Generative Media
+# ------------------------------------
+
+- name: ElevenLabs
+  slug: elevenlabs
+  domain: generative
+  costApi: partial
+  usageApi: yes
+  billingExport: partial
+  granularity: Per-character, per-product, per-voice, per-API-key
+
+  website: https://elevenlabs.io
+  notes: >
+    GET /v1/usage/character-stats for usage metrics with filtering by voice,
+    product, and API key. GET /v1/user/subscription for billing period and
+    limits. Dashboard CSV export available but no programmatic export endpoint.
+
+- name: Leonardo.ai
+  slug: leonardo
+  domain: generative
+  costApi: partial
+  usageApi: yes
+  billingExport: no
+  granularity: Credit balance and per-generation dollar cost in response
+
+  website: https://leonardo.ai
+  notes: >
+    GET /api/rest/v1/me returns credit balances. Generation responses include
+    a cost object with the USD amount charged and apiCreditCost per call.
+    Pricing calculator endpoint also estimates cost per generation config.
+    No CSV or billing export. Invoices downloadable as PDF only via
+    Stripe/Paddle dashboard.
+
+- name: Runway
+  slug: runway
+  domain: generative
+  costApi: partial
+  usageApi: yes
+  billingExport: no
+  granularity: Credit balance and 90-day usage history by model and day
+  verified: true
+
+  website: https://runwayml.com
+  notes: >
+    GET /organization returns credit balance and usage tier.
+    GET /organization/usage returns credit usage broken down by model and day,
+    queryable up to 90 days with ISO-8601 date parameters. Both endpoints are
+    publicly documented in the Runway developer API. Individual generation
+    responses do not include a per-call cost field. No billing export.
+
+- name: Runware
+  slug: runware
+  domain: generative
+  costApi: yes
+  usageApi: partial
+  billingExport: yes
+  granularity: Per-request USD cost in response (opt-in), credit balance
+
+  website: https://runware.ai
+  notes: >
+    Pass includeCost: true in any task request to get a cost field returning
+    a USD float (e.g. 0.0013) directly — no conversion required. No
+    aggregated usage history endpoint. Must build your own tracking by
+    logging per-request costs.
+
+- name: Soundraw
+  slug: soundraw
+  domain: generative
+  costApi: no
+  usageApi: no
+  billingExport: no
+  granularity: None
+
+  website: https://soundraw.io
+  notes: >
+    Subscription-based flat-rate pricing. No public API for billing or
+    usage tracking. Purely a SaaS subscription managed through the website.
+
+- name: Recraft
+  slug: recraft
+  domain: generative
+  costApi: partial
+  usageApi: partial
+  billingExport: no
+  granularity: Credit balance via API, per-operation dollar costs
+
+  website: https://recraft.ai
+  notes: >
+    GET /v1/users/me returns credit balance. Per-operation costs are
+    documented in dollar terms via the API unit model ($1 = 1,000 API units),
+    not the in-app credit system. API pricing was overhauled in 2025 with
+    significant reductions. No usage history endpoint, no billing export.
+    Web app and API have separate pricing models.
+
+- name: Bria
+  slug: bria
+  domain: generative
+  costApi: no
+  usageApi: no
+  billingExport: no
+  granularity: None
+
+  website: https://bria.ai
+  notes: >
+    No documented API endpoints for billing, credits, or usage. Action-based
+    billing ($0.005-$0.08 per action). HTTP 429 on limit exceeded. All billing
+    through platform dashboard only.
+
+- name: Mureka
+  slug: mureka
+  domain: generative
+  costApi: partial
+  usageApi: partial
+  billingExport: no
+  granularity: Credit balance via billing endpoint; credits require rate conversion
+
+  website: https://mureka.ai
+  notes: >
+    GET /v1/account/billing returns account credit balance as an abstract
+    integer. Must multiply by per-credit rate to get USD (~$0.12-0.15/min
+    of audio). Credits follow FIFO spending. Website and API credit systems
+    are entirely separate. No usage history endpoint, no billing export.
+
+- name: Luma
+  slug: luma
+  domain: generative
+  costApi: yes
+  usageApi: yes
+  billingExport: no
+  granularity: Credit balance via API, per-generation credit costs
+
+  website: https://lumalabs.ai
+  notes: >
+    GET /dream-machine/v1/credits returns balance programmatically.
+    Well-documented per-generation costs (4 credits/image, 160-4480/video).
+    No CSV export. Web and API credits are separate and non-transferable.
+
+- name: Black Forest Labs
+  slug: blackforestlabs
+  domain: generative
   costApi: partial
   usageApi: partial
   billingExport: no
   granularity: Per-request cost in response, credit balance via API
 
-  website: https://fal.ai
+  website: https://blackforestlabs.ai
   notes: >
-    Queue result responses include billing metadata with cost per request.
-    Credit balance accessible programmatically. No aggregated usage history
-    endpoint, no billing export. Offers better cost transparency than running
-    models like FLUX directly through Black Forest Labs. Must log per-request
-    costs yourself for aggregation.
+    GET /v1/credits returns remaining balance. Generation responses (e.g.
+    /v1/flux-kontext-pro, /v1/flux-2-max) include a cost field with credits
+    consumed per request. No usage history endpoint, no billing export.
+    Billing managed via Stripe portal with PDF invoices only.
+
+# ------------------------------------
+# AI Infrastructure
+# ------------------------------------
+
+- name: Marqo
+  slug: marqo
+  domain: infrastructure
+  costApi: no
+  usageApi: partial
+  billingExport: no
+  granularity: Index-level metrics
+
+  website: https://marqo.ai
+  notes: >
+    Index statistics (document count, storage) via API. No billing or cost
+    API. Infrastructure-based pricing (per-index, per-hour). Dashboard-only
+    billing visibility.

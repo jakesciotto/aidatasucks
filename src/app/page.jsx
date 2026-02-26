@@ -3,15 +3,19 @@ import path from "path";
 import yaml from "js-yaml";
 import { VendorTable } from "@/components/vendor-table";
 import { GradeBadge } from "@/components/grade-badge";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 const SCORE = { yes: 2, partial: 1, no: 0 };
 
 function calcGrade(vendor) {
   const { costApi, usageApi, billingExport } = vendor;
 
-  if (costApi === "yes" && usageApi === "yes" && billingExport === "yes") return "A+";
-  if (costApi === "yes" && usageApi === "yes" && billingExport === "partial") return "A-";
-  if (costApi !== "no" && usageApi !== "no" && billingExport === "no") return "B-";
+  if (costApi === "yes" && usageApi === "yes" && billingExport === "yes")
+    return "A+";
+  if (costApi === "yes" && usageApi === "yes" && billingExport === "partial")
+    return "A-";
+  if (costApi !== "no" && usageApi !== "no" && billingExport === "no")
+    return "B-";
 
   const base = SCORE[costApi] + SCORE[usageApi] + SCORE[billingExport];
   const hasVisibility = costApi !== "no" || usageApi !== "no";
@@ -64,9 +68,13 @@ export default function Home() {
       </section>
 
       {/* Methodology */}
-      <section className="animate-in-up delay-5 space-y-4 border-t border-border/50 pt-8">
+      <section className="animate-in-up delay-5 space-y-5 border-t border-border/50 pt-8">
         <h2 className="text-lg font-semibold tracking-tight">Methodology</h2>
+
         <div className="max-w-2xl space-y-3 font-mono text-sm leading-relaxed text-muted-foreground">
+          <h3 className="text-s uppercase tracking-wider text-foreground">
+            Grades
+          </h3>
           <p>
             Grades are based on whether a vendor provides programmatic access to
             cost data, usage metrics, and billing exports.
@@ -74,7 +82,9 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
               <GradeBadge grade="A+" />
-              <span>Full coverage — cost API, usage API, and billing export</span>
+              <span>
+                Full coverage — cost API, usage API, and billing export
+              </span>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
               <GradeBadge grade="A-" />
@@ -100,6 +110,16 @@ export default function Home() {
               <GradeBadge grade="F" />
               <span>Flying blind. No programmatic cost visibility.</span>
             </div>
+          </div>
+        </div>
+
+        <div className="max-w-2xl space-y-3 font-mono text-sm leading-relaxed text-muted-foreground">
+          <h3 className="text- uppercase tracking-wider text-foreground">
+            Key
+          </h3>
+          <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
+            <VerifiedBadge />
+            <span>Verified</span>
           </div>
         </div>
       </section>
