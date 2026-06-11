@@ -7,5 +7,6 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
   capture_pageview: true,
   capture_pageleave: true,
   capture_exceptions: true,
-  debug: process.env.NODE_ENV === "development",
+  disable_surveys: true,
+  debug: process.env.NODE_ENV === "production",
 });
