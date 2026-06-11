@@ -25,13 +25,19 @@
   costApi: yes
   usageApi: yes
   billingExport: yes
-  granularity: Per-model, per-token, per-invocation
+  granularity: Per-model, per-token, per-invocation; plus per-IAM-principal, per-application-inference-profile, per-project/workspace, and per-request-metadata attribution (native dollar grain is per usage type per day)
 
   website: https://aws.amazon.com/bedrock/
   notes: >
-    Cost Explorer API, CloudWatch metrics (InputTokenCount, OutputTokenCount,
-    Invocations), CUR export to S3. Supports cost allocation tags for
-    per-project attribution.
+    Cost Explorer API (GetCostAndUsage) returns USD; no dedicated Bedrock cost
+    API. CloudWatch AWS/Bedrock metrics (InputTokenCount, OutputTokenCount,
+    Invocations; added TTFT and quota-consumption metrics). Model invocation
+    logging gives per-request token counts. Billing export via CUR 2.0 / Data
+    Exports to S3 with cost allocation tags. April 2026 added IAM-principal
+    cost allocation (line_item_iam_principal column, GA 2026-04-09), Bedrock
+    Projects/Workspaces, and Application inference profiles for per-app
+    attribution -- all aggregated to per usage type per day, no per-request
+    dollar rows.
 
 - name: Azure
   slug: azure
@@ -60,9 +66,12 @@
 
   website: https://cloud.google.com/vertex-ai
   notes: >
-    Cloud Billing API, BigQuery billing export with SKU-level line items,
-    Cloud Monitoring API for token usage and latency. Supports labels for
-    cost attribution.
+    Cloud Billing API returns USD; Cloud Billing Catalog API lists SKU list
+    prices. New Pricing API (Preview) exposes account-specific contract prices
+    down to SKU level. BigQuery billing export (Standard, Detailed, Pricing;
+    new FOCUS 1.2 export in Preview, 2026-06). Cloud Monitoring exports Vertex
+    AI token-count metrics, queryable via the Monitoring API. Labels for
+    attribution; multi-project cost views added 2026-06.
 
 - name: Oracle
   slug: oracle
@@ -101,13 +110,18 @@
   costApi: yes
   usageApi: yes
   billingExport: partial
-  granularity: Per-model, per-request tokens
+  granularity: Per-model, per-workspace, per-API-key, per-service-tier, per-context-window; aggregated in 1m/1h/1d buckets, per-request tokens in the response usage object
 
   website: https://anthropic.com
   notes: >
-    Every response includes usage object with input/output token counts
-    (including cache tokens). Admin API for org-level usage. CSV export
-    from console. Must calculate costs from token counts yourself.
+    Response usage object returns input/output incl cache tokens per request.
+    Admin API (sk-ant-admin): GET /v1/organizations/usage_report/messages for
+    historical token usage in 1m/1h/1d buckets, grouped by
+    api_key/workspace/model/service_tier/context_window. GET
+    /v1/organizations/cost_report returns actual USD by day and workspace --
+    no token-to-cost calc needed (excludes Priority Tier). Claude Code
+    Analytics API for per-user cost. No scheduled/bulk export; manual CSV from
+    the Console only.
 
 # ------------------------------------
 # Independent Model Labs
@@ -148,29 +162,113 @@
   slug: minimax
   domain: independent
   costApi: no
-  usageApi: no
-  billingExport: yes
-  granularity: Per-request token counts
+  usageApi: partial
+  billingExport: no
+  granularity: Per-request token counts; current-window quota-remaining endpoint
 
   website: https://minimax.io
   notes: >
-    API responses include input/output token counts. No usage history API,
-    no billing API, no export. Must self-instrument by logging per-request
-    tokens and multiplying by published rates.
+    Chat completions return a usage object (prompt/completion/total tokens,
+    reasoning tokens) but it is response-only, not stored. Programmatic
+    quota-remaining endpoints (POST /v1/token_plan/remains) return the current
+    5h/weekly window remaining quota -- not USD and not history. No cost API:
+    USD balance only in the dashboard. No usage-history aggregation and no
+    billing export. The June 2026 M3 overhaul (token-based metering, refund
+    portal) added no programmatic cost/usage/export API. Reconciled:
+    billingExport corrected from yes to no.
 
 - name: BytePlus
   slug: byteplus
   domain: independent
   costApi: no
-  usageApi: partial
+  usageApi: yes
   billingExport: no
-  granularity: Per-request token counts in API response
+  granularity: Per-request token counts in API response; aggregated token usage queryable by day/hour via GetUsage API, by project/endpoint
 
   website: https://byteplus.com
   notes: >
-    API responses include usage field with input/output token counts for
-    ModelArk LLM calls. No dedicated billing API. Token-based hourly
-    pay-as-you-go pricing. Billing details in console only.
+    ModelArk LLM responses include a usage field (input/output tokens). The
+    GetUsage admin API (beta) queries historical aggregated token usage over a
+    time range with hourly/daily interval, by project/endpoint -- returns
+    timestamped PromptTokens/CompletionTokens only, no USD. No dollar cost API.
+    Token-based pay-as-you-go. No scheduled/bulk billing export; USD billing in
+    console only.
+
+- name: AI21 Labs
+  slug: ai21
+  domain: independent
+  costApi: partial
+  usageApi: partial
+  billingExport: no
+  granularity: per-request token usage in response; dashboard aggregates by model
+
+  website: https://www.ai21.com
+  notes: >
+    First-party model maker (Jamba family) served via the AI21 Studio API.
+    POST /studio/v1/chat/completions returns token counts in a usage field per
+    request but no dollar values. costApi partial: USD only via dashboard
+    (Account > Model usage) or by multiplying tokens by published per-token
+    rates. usageApi partial: per-request tokens only, no queryable history
+    endpoint. No CSV or programmatic billing export. Also resold via AWS
+    Bedrock and Azure, where billing flows through those clouds.
+
+- name: Alibaba Qwen
+  slug: qwen
+  domain: independent
+  costApi: yes
+  usageApi: yes
+  billingExport: yes
+  granularity: Cost/usage by billing-item, instance, model, API key, workspace, token type; daily or monthly cycle
+
+  website: https://www.alibabacloud.com/help/en/model-studio
+  notes: >
+    Qwen models served via the DashScope / Model Studio API. Cost and export
+    are handled by the account-wide Alibaba Cloud BSS OpenAPI (Model Studio as
+    a product code), not a DashScope-specific endpoint. QueryBill,
+    DescribeInstanceBill, and QueryInstanceBill return actual currency amounts
+    (Currency supports USD) at daily or monthly granularity. Per-request token
+    usage is in every response; DescribeInstanceBill also returns queryable
+    usage history with billing-item token breakdown. SubscribeBillToOSS
+    provides scheduled bulk delivery of bills to OSS, plus console CSV/PDF.
+
+- name: DeepSeek
+  slug: deepseek
+  domain: independent
+  costApi: partial
+  usageApi: partial
+  billingExport: partial
+  granularity: per-request token counts in response; per-currency balance via GET /user/balance; manual per-month export
+
+  website: https://platform.deepseek.com
+  notes: >
+    Chinese lab serving its own DeepSeek V4/R models via an OpenAI-compatible
+    API with public per-token pricing. Only four endpoints are documented
+    (chat/completions, completions, models, GET /user/balance). costApi
+    partial: /user/balance returns remaining funds (CNY or USD), not spend; USD
+    cost must be computed from token counts times published rates. usageApi
+    partial: per-request tokens only, dashboard-only history. billingExport
+    partial: usage export is a manual dashboard action (select month, Export),
+    no scheduled or programmatic export.
+
+- name: xAI
+  slug: xai
+  domain: independent
+  costApi: yes
+  usageApi: yes
+  billingExport: no
+  granularity: per-request response usage (cost_in_usd_ticks, 1 USD = 1e10 ticks) plus aggregated history via Management API /usage with time buckets, group_by, and aggregations
+
+  website: https://x.ai/api
+  notes: >
+    First-party Grok LLM vendor; pay-per-token API at api.x.ai. costApi yes:
+    every /v1/chat/completions and /v1/responses returns usage with
+    cost_in_usd_ticks (1 USD = 1e10 ticks), exact USD per request; the
+    Management API POST /v1/billing/teams/{id}/usage returns aggregated USD.
+    usageApi yes: the same response gives per-request tokens, and Management
+    /usage is a queryable history endpoint (timeRange, timeUnit minute to
+    month, groupBy model or API key, aggregations); Management also exposes
+    invoices and prepaid balance in USD. billingExport no: console Usage
+    Explorer only, no scheduled or CSV export.
 
 # ------------------------------------
 # Inference Providers
@@ -225,18 +323,134 @@
 - name: fal.ai
   slug: fal
   domain: inference
-  costApi: no
-  usageApi: partial
-  billingExport: no
-  granularity: Per-request compute time; separate pricing and usage platform APIs
+  costApi: yes
+  usageApi: yes
+  billingExport: partial
+  granularity: Per-request and per-billing-event cost in USD; aggregated usage by timeframe (minute/hour/day/week/month); on-demand FOCUS CSV report
 
   website: https://fal.ai
   notes: >
-    Queue result responses contain only data and requestId — no cost field.
-    Separate platform APIs exist: GET /v1/models/pricing returns USD unit
-    prices per endpoint, GET /v1/models/usage returns historical usage with
-    cost in USD. No billing export. Must use platform APIs separately from
-    the inference API to track spend.
+    Per-request queue result still has no cost field, but platform APIs (admin
+    key) return actual USD. GET /v1/models/usage returns aggregated historical
+    usage with USD cost and a time series (minute to month). GET
+    /v1/models/billing-events returns per-request USD cost. GET
+    /account/billing returns USD balance; GET /v1/models/pricing and POST
+    .../estimate return USD. GET /account/focus downloads an on-demand FOCUS
+    (FinOps) CSV report (enterprise-gated, 90-day lookback) -- programmatic
+    CSV, not a scheduled bulk export to storage.
+
+- name: Baseten
+  slug: baseten
+  domain: inference
+  costApi: yes
+  usageApi: yes
+  billingExport: no
+  granularity: Per-deployment / per-model / per-training-job; daily; tokens and billable minutes
+
+  website: https://baseten.co
+  notes: >
+    Management API (api.baseten.co/v1) GET /v1/billing/usage_summary returns
+    actual USD (subtotal, credits_used, total) plus minutes, queryable by
+    start_date/end_date (31-day max, from 2026-01-01), split into model
+    serving, training, and Model APIs with per-resource and daily breakdown --
+    serves as both cost (USD) and usage history. GET /v1/instance_type_prices
+    returns USD per minute. Prometheus /metrics is operational only. No
+    scheduled or programmatic bulk billing export; invoices are dashboard-only.
+
+- name: Cerebras
+  slug: cerebras
+  domain: inference
+  costApi: no
+  usageApi: partial
+  billingExport: partial
+  granularity: per-request token usage in response; Prometheus per-minute metrics; Console cost by model/token type per month
+
+  website: https://cerebras.ai
+  notes: >
+    Wafer-scale pay-per-token inference (OpenAI-compatible). The inference API
+    exposes only Chat, Completions, and Models, no usage or billing endpoints.
+    costApi no: responses return token counts only; USD spend lives in the
+    Console Cost tab (by model and token type, monthly), dashboard-only.
+    usageApi partial: per-request tokens are returned but not queryable; GET
+    /api/v1/metrics/organizations/{id} returns Prometheus gauges for the last
+    complete minute (operational, not history). billingExport partial: Console
+    "Download Report" CSV only, no scheduled or programmatic export.
+
+- name: DeepInfra
+  slug: deepinfra
+  domain: inference
+  costApi: yes
+  usageApi: yes
+  billingExport: partial
+  granularity: per-request (POST /v1/request-costs, costNanoUsd) and per-model-per-month aggregate (GET /payment/usage)
+
+  website: https://deepinfra.com
+  notes: >
+    Serverless per-token inference for open models, USD-denominated, no credits
+    abstraction. costApi yes: GET /payment/usage, /payment/usage/tokens, and
+    /payment/usage/{token} return cost in USD cents; POST /v1/request-costs
+    returns per-request costNanoUsd. usageApi yes: /payment/usage is queryable
+    by from/to (YYYY.MM or unix), returning months itemized by model with
+    units, rate, and cost. billingExport partial: GET /payment/invoices lists
+    invoices with PDF links programmatically, but there is no scheduled or bulk
+    usage-export job.
+
+- name: Novita AI
+  slug: novita
+  domain: inference
+  costApi: yes
+  usageApi: yes
+  billingExport: partial
+  granularity: per-bill line with cycleType (Hour/Day/Week/Month) and productCategory (llm/gpu/storage); monthly bills; USD as 1/10000 USD
+
+  website: https://novita.ai
+  notes: >
+    Serverless LLM/image inference plus GPU cloud, with a documented OpenAPI
+    billing suite. costApi yes: GET /openapi/v1/billing/bill/list and
+    /billing/monthly/bill return amounts in direct USD fixed-point (1/10000
+    USD); /billing/balance/detail returns balance. usageApi yes:
+    /billing/bill/list is queryable by startTime/endTime (31-day window),
+    cycleType granularity, and productCategory, returning per-period usage and
+    cost. billingExport partial: monthly bills include a downloadable
+    invoiceUrl, but no scheduled or bulk export pipeline.
+
+- name: Fireworks AI
+  slug: fireworks
+  domain: inference
+  costApi: partial
+  usageApi: yes
+  billingExport: yes
+  granularity: per-request response usage; daily buckets (billingUsage) grouped by model/api_key/deployment/tags; per-event export-metrics CSV (tokens-only)
+
+  website: https://fireworks.ai
+  notes: >
+    Serverless pay-per-token inference plus fine-tuning. costApi partial: HTTP
+    GET /v1/accounts/{id}/billingUsage returns metered quantities only (tokens,
+    accelerator_seconds), "tokens, not dollars"; USD totals are CLI-only today
+    (firectl billing get-usage --account-costs-only). usageApi yes:
+    billingUsage is a queryable daily-bucketed history (groupBy by model,
+    api_key, deployment, tags; 31-day windows) plus per-request usage in
+    responses; it covers text and audio only, no embeddings or images yet.
+    billingExport yes: firectl billing export-metrics produces a bulk
+    tokens-only CSV with documented cron automation and backfill.
+
+- name: SiliconFlow
+  slug: siliconflow
+  domain: inference
+  costApi: partial
+  usageApi: partial
+  billingExport: partial
+  granularity: per-request token counts in response; account balance in USD; aggregated usage/cost dashboard-only
+
+  website: https://siliconflow.com
+  notes: >
+    Serverless OpenAI-compatible inference cloud, pay-per-token in USD. costApi
+    partial: GET /v1/user/info returns balance and totalBalance as USD strings
+    (balance only, not spend); USD cost requires tokens times a published rate
+    (the API returns no price field). usageApi partial: the per-request usage
+    object is not stored; aggregated usage and cost are dashboard-only.
+    billingExport partial: a Mar 2026 release added dashboard billing export
+    for reconciliation, but with no documented API or scheduled mechanism.
 
 # ------------------------------------
 # Generative Media
@@ -248,13 +462,19 @@
   costApi: partial
   usageApi: yes
   billingExport: partial
-  granularity: Per-character, per-product, per-voice, per-API-key
+  granularity: Per-character/credit, per-product, per-voice, per-API-key, per-user, per-model, per-region, per-workspace; USD spend via fiat_units_spent metric
 
   website: https://elevenlabs.io
   notes: >
-    GET /v1/usage/character-stats for usage metrics with filtering by voice,
-    product, and API key. GET /v1/user/subscription for billing period and
-    limits. Dashboard CSV export available but no programmatic export endpoint.
+    Usage history via GET
+    /v1/workspace/analytics/query/usage-by-product-over-time (replaces the
+    deprecated /v1/usage/character-stats), queryable by interval with breakdown
+    (voice, product, model, api_keys, user, region) and metrics (credits,
+    tts_characters, minutes, request_count, fiat_units_spent). fiat_units_spent
+    exposes spend (usd/eur/inr) but is not documented as exact USD, so cost
+    stays partial. GET /v1/user/subscription returns plan, limits, and credits.
+    Billing export is manual dashboard CSV only; no programmatic export
+    endpoint.
 
 - name: Leonardo.ai
   slug: leonardo
@@ -262,15 +482,17 @@
   costApi: partial
   usageApi: yes
   billingExport: no
-  granularity: Credit balance and per-generation dollar cost in response
+  granularity: Per-generation cost object (amount plus unit, dollars or credits) in response; USD account balance under PAYG; credit balance via GET /me
 
   website: https://leonardo.ai
   notes: >
-    GET /api/rest/v1/me returns credit balances. Generation responses include
-    a cost object with the USD amount charged and apiCreditCost per call.
-    Pricing calculator endpoint also estimates cost per generation config.
-    No CSV or billing export. Invoices downloadable as PDF only via
-    Stripe/Paddle dashboard.
+    GET /api/rest/v1/me returns remaining API credits/balance. Generation
+    responses include a cost object (amount plus unit, dollars or credits) and
+    apiCreditCost; under the new Pay-As-You-Go model balances are kept in USD
+    and deducted in real time. POST /api/rest/v1/pricing-calculator estimates a
+    request's USD cost before submission. No queryable usage-history endpoint.
+    No scheduled/bulk billing export; invoices via the Paddle customer portal
+    only.
 
 - name: Runway
   slug: runway
@@ -283,26 +505,30 @@
 
   website: https://runwayml.com
   notes: >
-    GET /organization returns credit balance and usage tier.
-    GET /organization/usage returns credit usage broken down by model and day,
-    queryable up to 90 days with ISO-8601 date parameters. Both endpoints are
-    publicly documented in the Runway developer API. Individual generation
-    responses do not include a per-call cost field. No billing export.
+    GET /v1/organization returns credit balance and usage tier. POST
+    /v1/organization/usage returns credit usage by model and day, queryable up
+    to 90 days with date-range params. Billing is credits only at $0.01/credit;
+    no per-call or aggregate USD field (USD derivable via the fixed credit
+    rate). Autobilling is automatic credit top-up (web portal only). No billing
+    export.
 
 - name: Runware
   slug: runware
   domain: generative
   costApi: yes
-  usageApi: partial
-  billingExport: yes
-  granularity: Per-request USD cost in response (opt-in), credit balance
+  usageApi: yes
+  billingExport: no
+  granularity: Per-request USD cost in response (opt-in); account balance and aggregated usage (credits/requests) via accountManagement getDetails for today/7d/30d/lifetime
 
   website: https://runware.ai
   notes: >
-    Pass includeCost: true in any task request to get a cost field returning
-    a USD float (e.g. 0.0013) directly — no conversion required. No
-    aggregated usage history endpoint. Must build your own tracking by
-    logging per-request costs.
+    Pass includeCost: true to get a USD cost float per task. The new
+    accountManagement task (getDetails) returns account balance (amount,
+    freeBalance, currency e.g. USD), API keys with per-key request counts, and
+    aggregated usage (credits and requests) for today/7d/30d/total -- a
+    queryable usage surface (credits/requests, not USD). No scheduled or bulk
+    billing export and no documented CSV export. Reconciled: billingExport
+    corrected from yes to no.
 
 - name: Soundraw
   slug: soundraw
@@ -368,13 +594,17 @@
   costApi: yes
   usageApi: yes
   billingExport: no
-  granularity: Credit balance via API, per-generation credit costs
+  granularity: Credit balance via API (returned in USD cents); per-generation credit costs; queryable generations list endpoint
 
   website: https://lumalabs.ai
   notes: >
-    GET /dream-machine/v1/credits returns balance programmatically.
-    Well-documented per-generation costs (4 credits/image, 160-4480/video).
-    No CSV export. Web and API credits are separate and non-transferable.
+    GET /dream-machine/v1/credits returns credit_balance, documented in the
+    OpenAPI spec as available balance in USD cents (actual USD obtainable). GET
+    /dream-machine/v1/generations lists generations with pagination but carries
+    no per-item cost field. Documented per-generation credit costs (image 4-8;
+    video e.g. Ray3 720p 5s = 100 credits, 1080p HDR = 1600). No bulk or
+    scheduled CSV export; dashboard usage only. Web and API credit wallets are
+    separate.
 
 - name: Black Forest Labs
   slug: blackforestlabs
@@ -401,17 +631,14 @@
 
   website: https://cursor.com
   notes: >
-    Enterprise Admin API provides POST /teams/filtered-usage-events with
-    per-request granularity including user email, model, token counts
-    (input, output, cache read/write), cost in cents, and billing kind
-    (e.g. "Included in Business", "Usage-based"). POST /teams/spend
-    returns per-member spend totals for the current billing cycle.
-    GET /teams/groups returns billing group assignments for team-level
-    attribution. POST /teams/daily-usage-data provides daily aggregated
-    metrics. All endpoints use Basic Auth with an Enterprise API key.
-    Rate-limited to ~20 requests/minute. Max 30-day date range per
-    request. No billing export or scheduled data delivery. Costs are
-    reported in cents and must be converted to dollars. 
+    Enterprise/Team Admin API (Basic Auth, ~20 req/min, 30-day max range):
+    POST /teams/filtered-usage-events (per-event chargedCents, token usage,
+    model, per-user); POST /teams/spend (per-member spendCents, current cycle);
+    POST /teams/daily-usage-data (daily aggregates, no cost); GET /teams/groups
+    (billing groups). Cost returned in cents. A newer Analytics API
+    (/analytics/team/*, ~24 endpoints) gives queryable historical usage but no
+    cost. No billing export; third-party tools (Vantage, Finout) ingest via the
+    Admin API. 
 
 # ------------------------------------
 # AI Infrastructure
@@ -423,10 +650,75 @@
   costApi: no
   usageApi: partial
   billingExport: no
-  granularity: Index-level metrics
+  granularity: Index-level metrics; ecommerce event analytics (search/click/conversion)
 
   website: https://marqo.ai
   notes: >
-    Index statistics (document count, storage) via API. No billing or cost
-    API. Infrastructure-based pricing (per-index, per-hour). Dashboard-only
-    billing visibility.
+    No billing or cost API. Cloud API v2 exposes index CRUD/search plus GET
+    /indexes/{index}/stats (numberOfDocuments, numberOfVectors, memory and
+    storage used %) -- point-in-time, no USD. Infrastructure-based pricing
+    (per-index/shard, per-hour); billing visibility is dashboard-only with a
+    Stripe-style portal; no programmatic or scheduled export. Repositioned to
+    ecommerce search: added an Analytics API
+    (overview/terms/funnel/time-series) for queryable ecommerce-event
+    aggregates -- behavior analytics, not billing, no cost values. Datadog
+    integration pushes operational metrics only.
+
+- name: Nebius
+  slug: nebius
+  domain: infrastructure
+  costApi: partial
+  usageApi: partial
+  billingExport: yes
+  granularity: hourly FOCUS 1.2 line items with per-resource attribution over a billing-period range; Token Factory per-request token counts
+
+  website: https://nebius.com
+  notes: >
+    Full-stack AI cloud (GPU) plus Token Factory serverless inference. Billing
+    via gRPC (billing-data-plane.api.nebius.cloud). billingExport yes:
+    OneTimeExportService (CLI billing one-time-export) is a programmatic bulk
+    export of FOCUS 1.2 CSV or PDF over a billing-period range, also
+    deliverable to Object Storage; on-demand, not cron-scheduled. costApi
+    partial: only CalculatorService estimates cost; actual USD comes from the
+    FOCUS export file, not an inline query. usageApi partial: Token Factory
+    returns per-request tokens but no USD, and consumption history is dashboard
+    only.
+
+- name: RunPod
+  slug: runpod
+  domain: infrastructure
+  costApi: yes
+  usageApi: yes
+  billingExport: partial
+  granularity: per serverless-endpoint / pod / GPU-type, time-bucketed (hour to year) over an arbitrary startTime/endTime range
+
+  website: https://runpod.io
+  notes: >
+    GPU cloud: serverless endpoints (per-second) plus pods. REST API v1
+    (rest.runpod.io/v1) has a Billing resource: GET /billing/endpoints and GET
+    /billing/pods return USD amount, timeBilledMs, and disk billed, with
+    startTime/endTime, bucketSize (hour to year), and grouping by endpoint,
+    pod, or gpuType -- actual USD, queryable, time-bucketed cost and usage
+    history. Legacy GraphQL also exposes balance and dailyCharges in USD.
+    billingExport partial: dashboard Billing Explorer and monthly PDF invoices,
+    but no CSV or scheduled bulk export; the REST endpoints are the
+    programmatic pull.
+
+- name: Modal
+  slug: modal
+  domain: infrastructure
+  costApi: yes
+  usageApi: yes
+  billingExport: yes
+  granularity: per-App, per-day or per-hour cost; optional per-App-tag breakdown
+
+  website: https://modal.com
+  notes: >
+    Code-first serverless GPU platform. One programmatic surface for all three:
+    modal.billing.workspace_billing_report() Python API plus `modal billing
+    report` CLI (GA v1.3.3, 2026-02, Team/Enterprise plans). Returns USD cost
+    per App aggregated daily or hourly over --start/--end ranges. costApi yes
+    (USD, no conversion; cost is before credits/reservations). usageApi yes
+    (queryable post-hoc aggregated history). billingExport yes (CLI --json or
+    --csv, scriptable, with App tags); on-demand, no vendor-managed scheduled
+    drop.
