@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { Fragment, useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import posthog from "posthog-js";
 import {
@@ -15,8 +15,7 @@ import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/status-badge";
 import { GradeBadge } from "@/components/grade-badge";
 import { VerifiedBadge } from "@/components/verified-badge";
-
-const gradeOrder = { "A+": 1, "A-": 2, B: 3, "B-": 4, C: 5, D: 6, F: 7 };
+import { gradeOrder } from "@/lib/grades";
 
 function SortIcon({ field, sortField, sortDir }) {
   const isActive = sortField === field;
@@ -43,8 +42,25 @@ function SortIcon({ field, sortField, sortDir }) {
   );
 }
 
+function Chevron({ open }) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      className={`shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+    >
+      <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function VendorName({ vendor, className = "" }) {
-  const handleClick = () => {
+  const handleClick = (e) => {
+    e.stopPropagation();
     posthog.capture("vendor_link_clicked", {
       vendor_name: vendor.name,
       vendor_slug: vendor.slug,
@@ -90,7 +106,19 @@ function VendorName({ vendor, className = "" }) {
   );
 }
 
-function VendorCard({ vendor }) {
+function NotesPanel({ vendor }) {
+  return (
+    <div className="max-w-3xl space-y-1.5 font-mono text-xs leading-relaxed text-muted-foreground">
+      <span className="block text-[10px] uppercase tracking-wider text-foreground">
+        Notes
+      </span>
+      <p>{vendor.notes}</p>
+    </div>
+  );
+}
+
+function VendorCard({ vendor, expanded, onToggle }) {
+  const canExpand = Boolean(vendor.notes);
   return (
     <div className="rounded-xl border border-border/50 bg-card p-4 space-y-3">
       <div className="flex items-center justify-between">
@@ -121,6 +149,19 @@ function VendorCard({ vendor }) {
         <span className="text-[10px] uppercase tracking-wider">Granularity</span>
         <p className="text-foreground">{vendor.granularity}</p>
       </div>
+      {canExpand && (
+        <>
+          <button
+            onClick={onToggle}
+            aria-expanded={expanded}
+            className="flex w-full items-center justify-between border-t border-border/50 pt-3 font-mono text-[10px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {expanded ? "Hide notes" : "Show notes"}
+            <Chevron open={expanded} />
+          </button>
+          {expanded && <NotesPanel vendor={vendor} />}
+        </>
+      )}
     </div>
   );
 }
@@ -205,6 +246,7 @@ export function VendorTable({ vendors }) {
   const [domainFilter, setDomainFilter] = useState(new Set());
   const [sortField, setSortField] = useState("grade");
   const [sortDir, setSortDir] = useState("asc");
+  const [expanded, setExpanded] = useState(new Set());
 
   const toggleSort = (field) => {
     const newDir = sortField === field ? (sortDir === "asc" ? "desc" : "asc") : "asc";
@@ -220,6 +262,24 @@ export function VendorTable({ vendors }) {
     });
   };
 
+  const toggleExpand = (vendor) => {
+    if (!vendor.notes) return;
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(vendor.slug)) {
+        next.delete(vendor.slug);
+      } else {
+        next.add(vendor.slug);
+        posthog.capture("vendor_expanded", {
+          vendor_name: vendor.name,
+          vendor_slug: vendor.slug,
+          vendor_grade: vendor.grade,
+        });
+      }
+      return next;
+    });
+  };
+
   const sorted = useMemo(() => {
     const filtered = vendors.filter((v) => {
       const matchesText = v.name.toLowerCase().includes(filter.toLowerCase());
@@ -232,6 +292,23 @@ export function VendorTable({ vendors }) {
       return mul * (gradeOrder[a.grade] - gradeOrder[b.grade]);
     });
   }, [vendors, filter, domainFilter, sortField, sortDir]);
+
+  const sortAria = (field) =>
+    sortField === field ? (sortDir === "asc" ? "ascending" : "descending") : "none";
+
+  const onHeaderKeyDown = (e, field) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleSort(field);
+    }
+  };
+
+  const onRowKeyDown = (e, vendor) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleExpand(vendor);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -273,11 +350,17 @@ export function VendorTable({ vendors }) {
           <TableHeader>
             <TableRow className="border-border/50 hover:bg-transparent">
               <TableHead
-                className="h-12 w-[18%] cursor-pointer select-none px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
-                onClick={() => toggleSort("name")}
+                aria-sort={sortAria("name")}
+                className="h-12 w-[18%] px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground"
               >
-                Vendor
-                <SortIcon field="name" sortField={sortField} sortDir={sortDir} />
+                <button
+                  onClick={() => toggleSort("name")}
+                  onKeyDown={(e) => onHeaderKeyDown(e, "name")}
+                  className="inline-flex select-none items-center uppercase transition-colors hover:text-foreground"
+                >
+                  Vendor
+                  <SortIcon field="name" sortField={sortField} sortDir={sortDir} />
+                </button>
               </TableHead>
               <TableHead className="h-12 w-[12%] px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
                 Cost API
@@ -292,41 +375,67 @@ export function VendorTable({ vendors }) {
                 Granularity
               </TableHead>
               <TableHead
-                className="h-12 w-[10%] cursor-pointer select-none px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
-                onClick={() => toggleSort("grade")}
+                aria-sort={sortAria("grade")}
+                className="h-12 w-[10%] px-4 font-mono text-xs uppercase tracking-wider text-muted-foreground"
               >
-                Grade
-                <SortIcon field="grade" sortField={sortField} sortDir={sortDir} />
+                <button
+                  onClick={() => toggleSort("grade")}
+                  onKeyDown={(e) => onHeaderKeyDown(e, "grade")}
+                  className="inline-flex select-none items-center uppercase transition-colors hover:text-foreground"
+                >
+                  Grade
+                  <SortIcon field="grade" sortField={sortField} sortDir={sortDir} />
+                </button>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sorted.map((vendor, i) => (
-              <TableRow
-                key={vendor.slug}
-                className="animate-in-fade border-border/50 transition-colors hover:bg-muted/30"
-                style={{ animationDelay: `${i * 30}ms` }}
-              >
-                <TableCell className="px-4 py-3">
-                  <VendorName vendor={vendor} />
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <StatusBadge status={vendor.costApi} />
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <StatusBadge status={vendor.usageApi} />
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <StatusBadge status={vendor.billingExport} />
-                </TableCell>
-                <TableCell className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                  {vendor.granularity}
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <GradeBadge grade={vendor.grade} />
-                </TableCell>
-              </TableRow>
-            ))}
+            {sorted.map((vendor, i) => {
+              const isOpen = expanded.has(vendor.slug);
+              const canExpand = Boolean(vendor.notes);
+              return (
+                <Fragment key={vendor.slug}>
+                  <TableRow
+                    className={`animate-in-fade border-border/50 transition-colors hover:bg-muted/30 ${canExpand ? "cursor-pointer" : ""}`}
+                    style={{ animationDelay: `${i * 30}ms` }}
+                    onClick={() => toggleExpand(vendor)}
+                    role={canExpand ? "button" : undefined}
+                    tabIndex={canExpand ? 0 : undefined}
+                    aria-expanded={canExpand ? isOpen : undefined}
+                    onKeyDown={canExpand ? (e) => onRowKeyDown(e, vendor) : undefined}
+                  >
+                    <TableCell className="px-4 py-3">
+                      <VendorName vendor={vendor} />
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      <StatusBadge status={vendor.costApi} />
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      <StatusBadge status={vendor.usageApi} />
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      <StatusBadge status={vendor.billingExport} />
+                    </TableCell>
+                    <TableCell className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                      {vendor.granularity}
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <GradeBadge grade={vendor.grade} />
+                        {canExpand && <Chevron open={isOpen} />}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  {canExpand && isOpen && (
+                    <TableRow className="border-border/50 bg-muted/20 hover:bg-muted/20">
+                      <TableCell colSpan={6} className="px-4 pb-4 pt-0">
+                        <NotesPanel vendor={vendor} />
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Fragment>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
@@ -339,7 +448,11 @@ export function VendorTable({ vendors }) {
             className="animate-in-up"
             style={{ animationDelay: `${i * 40}ms` }}
           >
-            <VendorCard vendor={vendor} />
+            <VendorCard
+              vendor={vendor}
+              expanded={expanded.has(vendor.slug)}
+              onToggle={() => toggleExpand(vendor)}
+            />
           </div>
         ))}
       </div>

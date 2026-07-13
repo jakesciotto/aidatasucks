@@ -4,27 +4,7 @@ import yaml from "js-yaml";
 import { VendorTable } from "@/components/vendor-table";
 import { GradeBadge } from "@/components/grade-badge";
 import { VerifiedBadge } from "@/components/verified-badge";
-
-const SCORE = { yes: 2, partial: 1, no: 0 };
-
-function calcGrade(vendor) {
-  const { costApi, usageApi, billingExport } = vendor;
-
-  if (costApi === "yes" && usageApi === "yes" && billingExport === "yes")
-    return "A+";
-  if (costApi === "yes" && usageApi === "yes" && billingExport === "partial")
-    return "A-";
-  if (costApi !== "no" && usageApi !== "no" && billingExport === "no")
-    return "B-";
-
-  const base = SCORE[costApi] + SCORE[usageApi] + SCORE[billingExport];
-  const hasVisibility = costApi !== "no" || usageApi !== "no";
-  const score = base + (hasVisibility ? 1 : 0);
-  if (score >= 4) return "B";
-  if (score >= 3) return "C";
-  if (score >= 1) return "D";
-  return "F";
-}
+import { calcGrade, gradeLegend } from "@/lib/grades";
 
 function getVendors() {
   const filePath = path.join(process.cwd(), "src/data/vendors.yaml");
@@ -72,7 +52,7 @@ export default function Home() {
         <h2 className="text-lg font-semibold tracking-tight">Methodology</h2>
 
         <div className="max-w-2xl space-y-3 font-mono text-sm leading-relaxed text-muted-foreground">
-          <h3 className="text-s uppercase tracking-wider text-foreground">
+          <h3 className="text-sm uppercase tracking-wider text-foreground">
             Grades
           </h3>
           <p>
@@ -80,41 +60,20 @@ export default function Home() {
             cost data, usage metrics, and billing exports.
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
-              <GradeBadge grade="A+" />
-              <span>
-                Full coverage — cost API, usage API, and billing export
-              </span>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
-              <GradeBadge grade="A-" />
-              <span>Full cost and usage APIs, partial billing export</span>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
-              <GradeBadge grade="B" />
-              <span>Good visibility, partial billing export</span>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
-              <GradeBadge grade="B-" />
-              <span>Good cost/usage visibility, no billing export</span>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
-              <GradeBadge grade="C" />
-              <span>Partial coverage, significant limitations</span>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
-              <GradeBadge grade="D" />
-              <span>Minimal data, painful to use</span>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2 sm:col-span-2">
-              <GradeBadge grade="F" />
-              <span>Flying blind. No programmatic cost visibility.</span>
-            </div>
+            {gradeLegend.map(({ grade, desc, wide }) => (
+              <div
+                key={grade}
+                className={`flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2 ${wide ? "sm:col-span-2" : ""}`}
+              >
+                <GradeBadge grade={grade} />
+                <span>{desc}</span>
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="max-w-2xl space-y-3 font-mono text-sm leading-relaxed text-muted-foreground">
-          <h3 className="text- uppercase tracking-wider text-foreground">
+          <h3 className="text-sm uppercase tracking-wider text-foreground">
             Key
           </h3>
           <div className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-3 py-2">
