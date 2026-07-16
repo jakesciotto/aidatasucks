@@ -1,3 +1,5 @@
+import { LAST_UPDATED } from "@/lib/site";
+
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl animate-in-down delay-0">
@@ -11,7 +13,7 @@ export function SiteHeader() {
           </span>
         </a>
         <span className="text-[11px] text-muted-foreground/50 font-mono">
-          updated 2026-06-10
+          updated {LAST_UPDATED}
         </span>
       </div>
     </header>

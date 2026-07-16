@@ -1,12 +1,4 @@
-const gradeClass = {
-  "A+": "grade-a-plus",
-  "A-": "grade-a-minus",
-  B: "grade-b",
-  "B-": "grade-b-minus",
-  C: "grade-c",
-  D: "grade-d",
-  F: "grade-f",
-};
+import { gradeClass } from "@/lib/grades";
 
 export function GradeBadge({ grade }) {
   return (
@@ -15,7 +7,6 @@ export function GradeBadge({ grade }) {
       style={{
         backgroundColor: "var(--grade-bg)",
         color: "var(--grade-text)",
-        ringColor: "var(--grade-border)",
         "--tw-ring-color": "var(--grade-border)",
       }}
     >

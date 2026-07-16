@@ -2,6 +2,7 @@ import { Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { SITE_URL } from "@/lib/site";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -15,10 +16,25 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
 });
 
+const description =
+  "Which AI vendors actually let you track what you spend? A FinOps comparison of cost and usage APIs.";
+
 export const metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "aidatasucks.com",
-  description:
-    "Which AI vendors actually let you track what you spend? A FinOps comparison of cost and usage APIs.",
+  description,
+  openGraph: {
+    title: "aidatasucks.com",
+    description,
+    url: SITE_URL,
+    siteName: "aidatasucks.com",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "aidatasucks.com",
+    description,
+  },
 };
 
 export default function RootLayout({ children }) {
