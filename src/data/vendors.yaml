@@ -102,7 +102,9 @@
   notes: >
     Usage API (/organization/usage) provides token-level data by model and
     API key. Response headers include token counts. CSV export from dashboard.
-    No real-time cost API -- costs computed asynchronously.
+    No real-time cost API -- costs computed asynchronously. Since April 2026
+    Enterprise invoices no longer itemize API costs; the manual Cost and
+    Activity exports are the only reconciliation path.
 
 - name: Anthropic
   slug: anthropic
@@ -120,8 +122,10 @@
     api_key/workspace/model/service_tier/context_window. GET
     /v1/organizations/cost_report returns actual USD by day and workspace --
     no token-to-cost calc needed (excludes Priority Tier). Claude Code
-    Analytics API for per-user cost. No scheduled/bulk export; manual CSV from
-    the Console only.
+    Analytics API for per-user cost. Separate Claude Enterprise Analytics API
+    (claude.ai Enterprise orgs) adds per-user and org-level token usage and
+    cost over time, data from 2026-01-01. No scheduled/bulk export; manual CSV
+    from the Console only.
 
 # ------------------------------------
 # Independent Model Labs
@@ -130,18 +134,23 @@
 - name: Mistral AI
   slug: mistral
   domain: independent
-  costApi: partial
+  costApi: yes
   usageApi: yes
   billingExport: partial
-  granularity: Per-model, per-request tokens
+  granularity: Per-model, per-request tokens; org cost by category per billing month (optional per-workspace) via Admin API
 
   website: https://mistral.ai
   notes: >
     Every API response includes a usage object with prompt_tokens,
-    completion_tokens, and total_tokens. La Plateforme console exposes usage
-    dashboards with filtering by model and time range. CSV export available
-    from dashboard. No dedicated programmatic usage history endpoint or
-    scheduled export. Must compute cost from token counts and published rates.
+    completion_tokens, and total_tokens. Beta Admin API (x-api-key, base
+    /v1/admin): GET /usage returns org cost and consumption for a billing
+    period (month/year params, optional workspace_id) broken down by category
+    (chat, completion, ocr, audio, connectors, libraries_api, fine_tuning,
+    vibe_usage) with currency -- actual monetary values, no token math. GET
+    /spend-limit reads the monthly cap; /analytics/lechat and /analytics/vibe
+    report activity over time ranges. CSV export from dashboard only; no
+    scheduled or bulk export. Upgraded costApi from partial 2026-08-05 on the
+    Beta Admin API.
 
 - name: Cohere
   slug: cohere
@@ -417,22 +426,24 @@
 - name: Fireworks AI
   slug: fireworks
   domain: inference
-  costApi: partial
+  costApi: yes
   usageApi: yes
   billingExport: yes
-  granularity: per-request response usage; daily buckets (billingUsage) grouped by model/api_key/deployment/tags; per-event export-metrics CSV (tokens-only)
+  granularity: per-request response usage; rated USD by billing category or grouped by hour/day/model/user/API key; daily token buckets (billingUsage); per-event export-metrics CSV (tokens-only)
 
   website: https://fireworks.ai
   notes: >
-    Serverless pay-per-token inference plus fine-tuning. costApi partial: HTTP
-    GET /v1/accounts/{id}/billingUsage returns metered quantities only (tokens,
-    accelerator_seconds), "tokens, not dollars"; USD totals are CLI-only today
-    (firectl billing get-usage --account-costs-only). usageApi yes:
-    billingUsage is a queryable daily-bucketed history (groupBy by model,
-    api_key, deployment, tags; 31-day windows) plus per-request usage in
-    responses; it covers text and audio only, no embeddings or images yet.
-    billingExport yes: firectl billing export-metrics produces a bulk
-    tokens-only CSV with documented cron automation and backfill.
+    Serverless pay-per-token inference plus fine-tuning. costApi yes: GET
+    /v1/accounts/{id}/billing/summary returns rated USD line items by billing
+    category (serverless, dedicated, training; optional daily buckets) and
+    POST /v1/accounts/{id}/usageCosts:query returns rated USD subtotals
+    grouped by HOUR/DAY/MODEL/USER/API_KEY over REST -- previously CLI-only.
+    usageApi yes: billingUsage is a queryable daily-bucketed token history
+    (groupBy by model, api_key, deployment, tags; 31-day windows) plus
+    per-request usage in responses; covers text and audio only, no embeddings
+    or images yet. billingExport yes: firectl billing export-metrics produces
+    a bulk tokens-only CSV with documented cron automation and backfill.
+    Upgraded costApi from partial 2026-08-05 on the new REST cost endpoints.
 
 - name: SiliconFlow
   slug: siliconflow
@@ -510,7 +521,10 @@
     to 90 days with date-range params. Billing is credits only at $0.01/credit;
     no per-call or aggregate USD field (USD derivable via the fixed credit
     rate). Autobilling is automatic credit top-up (web portal only). No billing
-    export.
+    export. July 2026 added Enterprise-only /v1/organization/webapp/usage
+    (per-generation credit rows for linked web app workspaces) and
+    /webapp/audit_logs -- credits not USD, on-demand pull, plan-gated, so
+    billingExport stays no.
 
 - name: Runware
   slug: runware
@@ -702,7 +716,10 @@
     history. Legacy GraphQL also exposes balance and dailyCharges in USD.
     billingExport partial: dashboard Billing Explorer and monthly PDF invoices,
     but no CSV or scheduled bulk export; the REST endpoints are the
-    programmatic pull.
+    programmatic pull. REST API v2 (2026-07) split billing history into six
+    resource-specific endpoints (aggregated, pod, serverless, network-volume,
+    instant-cluster, public-endpoint), USD and time-bucketed -- still
+    query-only, no export added.
 
 - name: Modal
   slug: modal
