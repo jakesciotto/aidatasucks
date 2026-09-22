@@ -32,6 +32,14 @@ vendor data lives in `src/data/vendors.yaml`. grades are computed from it in `sr
 
 ## what have i done
 
+##### 9.22.26
+
+- Audit of all 39 vendors against current docs
+- BytePlus `costApi` and `billingExport` no -> yes (Billing Console API, Bill Storage TOS, missed before)
+- Together `costApi` no -> partial, `usageApi` partial -> yes (beta Billing Usage API, 2026-08-27)
+- Oracle `usageApi` no -> partial (Usage API USAGE query type)
+- Notes refreshed for 15 more vendors
+
 ##### 7.13.26
 
 - Click a row (or card) to expand the `notes` for that vendor
