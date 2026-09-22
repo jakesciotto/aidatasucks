@@ -39,6 +39,7 @@ vendor data lives in `src/data/vendors.yaml`. grades are computed from it in `sr
 - Together `costApi` no -> partial, `usageApi` partial -> yes (beta Billing Usage API, 2026-08-27)
 - Oracle `usageApi` no -> partial (Usage API USAGE query type)
 - Notes refreshed for 15 more vendors
+- Added Google Gemini API, Perplexity, Stability AI, Cloudflare Workers AI
 
 ##### 7.13.26
 

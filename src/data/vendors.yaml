@@ -144,6 +144,30 @@
     cost over time, data from 2026-01-01. No scheduled/bulk export; manual CSV
     from the Console only.
 
+- name: Google Gemini API
+  slug: gemini
+  domain: independent
+  costApi: yes
+  usageApi: partial
+  billingExport: yes
+  granularity: Per-response token counts; USD by SKU per day through Cloud Billing on the linked project, no key- or model-level history endpoint on the Gemini API itself
+
+  website: https://ai.google.dev
+  notes: >
+    Gemini Developer API (AI Studio), distinct from Vertex AI (slug gcp). Every
+    generateContent response includes a usageMetadata object (promptTokenCount,
+    candidatesTokenCount, cachedContentTokenCount, thoughtsTokenCount,
+    totalTokenCount), per request only, with no aggregate usage endpoint by API
+    key or model. The Gemini API itself has no cost endpoint. Paid use bills
+    through a linked Cloud Billing project, so USD spend is reachable the same
+    way as GCP: Cloud Billing reports by SKU (generativelanguage.googleapis.com)
+    and the scheduled BigQuery billing export, which is also the only export
+    path because AI Studio has no CSV export of its own. costApi yes rests on
+    that Cloud Billing surface, graded the same way as the AWS and GCP rows; the
+    Gemini API alone would be partial (tokens times the price list). Spend-based
+    rate limits (429 RESOURCE_EXHAUSTED) apply per 10-minute window by usage
+    tier.
+
 # ------------------------------------
 # Independent Model Labs
 
@@ -301,6 +325,30 @@
     month, groupBy model or API key, aggregations); Management also exposes
     invoices and prepaid balance in USD. billingExport no: console Usage
     Explorer only, no scheduled or CSV export.
+
+- name: Perplexity
+  slug: perplexity
+  domain: independent
+  costApi: yes
+  usageApi: partial
+  billingExport: no
+  granularity: Per-response usage object (input, output, reasoning and citation tokens, search queries) with matching USD cost fields; no history endpoint
+
+  website: https://www.perplexity.ai
+  notes: >
+    Sonar API (api.perplexity.ai). Every chat completions response includes a
+    usage object whose cost sub-fields (input_tokens_cost, output_tokens_cost,
+    reasoning_tokens_cost, request_cost, citation_tokens_cost,
+    search_queries_cost, total_cost) are explicit USD amounts, so costApi is
+    yes, but only per response, with no aggregate cost-history endpoint. The
+    same object exposes token and search counts per response, so usageApi is
+    partial: unit-level usage exists only inline on each call, not through a
+    queryable usage-by-model or usage-by-key endpoint. The API portal Billing
+    page shows a usage chart, a per-model quantity, rate and cost table, and
+    invoice history, but the docs describe no CSV export and no bulk or
+    scheduled export. A separate Analytics API (/v1/analytics/computer/usage)
+    exists for Perplexity Enterprise organizations, but it covers the web
+    product's credits and query volume, not Sonar API billing.
 
 # ------------------------------------
 # Inference Providers
@@ -673,6 +721,28 @@
     consumed per request. No usage history endpoint, no billing export.
     Billing managed via Stripe portal with PDF invoices only.
 
+- name: Stability AI
+  slug: stability
+  domain: generative
+  costApi: partial
+  usageApi: partial
+  billingExport: no
+  granularity: Credit balance only; per-model credit prices published (1 credit = $0.01)
+
+  website: https://platform.stability.ai
+  notes: >
+    GET /v1/user/balance returns the account's credit balance as a float
+    (credits, not currency). GET /v1/user/account returns email, id, and
+    organization membership, with no cost data. Stable Image and Stable Audio
+    generation responses carry no cost or credits-consumed field, so per-request
+    spend must be computed from the documented per-model credit price (1 credit
+    = $0.01, for example Stable Image Ultra 8 credits, Stable Audio 3.0 26
+    credits). No usage-history endpoint found. Manual invoicing exists only for
+    accounts above $10,000 per month in spend, through a support request, not a
+    self-serve export. The docs site is a client-rendered app, so the endpoint
+    schemas were corroborated through a mirrored connector reference; whether
+    the dashboard offers a manual CSV download is unverified.
+
 - name: Cursor AI
   slug: cursorai
   domain: generative
@@ -784,3 +854,28 @@
     Added 2026-08: environment-scoped modal environment billing report and
     billing summary (same JSON/CSV export, plus monthly spend by category and
     credit usage) and Workspace.billing.rates() for current pricing.
+
+- name: Cloudflare Workers AI
+  slug: cloudflare
+  domain: infrastructure
+  costApi: yes
+  usageApi: yes
+  billingExport: partial
+  granularity: Per-account cost by product per day (Billable Usage API); per-model inference usage by time range (GraphQL aiInferenceAdaptive dataset)
+
+  website: https://developers.cloudflare.com/workers-ai/
+  notes: >
+    Serverless edge inference billed in Neurons, a unit that normalizes tokens,
+    image tiles, diffusion steps, and audio seconds across model types, at
+    $0.011 per 1,000 Neurons above a 10,000 per day free allocation. costApi
+    yes: the account-level Billable Usage API (GET
+    /accounts/{id}/billable-usage, alpha, being replaced by
+    get_account_usage_v1) returns ContractedCost in the billing currency per
+    product line including Workers AI, with ConsumedQuantity and Unit, daily
+    granularity, in FOCUS format. usageApi yes: the GraphQL Analytics API
+    exposes an aiInferenceAdaptive dataset for account-level Workers AI
+    inference history, queryable by time range; the exact field list was not
+    reachable in the docs. AI Gateway sits in front as an optional logging proxy
+    and is out of scope here. billingExport partial: invoices are dashboard
+    PDFs, and the Billable Usage API is a pull endpoint rather than a
+    vendor-scheduled push to storage.
