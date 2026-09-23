@@ -4,6 +4,7 @@ import yaml from "js-yaml";
 import { VendorTable } from "@/components/vendor-table";
 import { GradeBadge } from "@/components/grade-badge";
 import { VerifiedBadge } from "@/components/verified-badge";
+import { TrackView } from "@/components/track-view";
 import { calcGrade, gradeLegend } from "@/lib/grades";
 
 function getVendors() {
@@ -48,7 +49,11 @@ export default function Home() {
       </section>
 
       {/* Methodology */}
-      <section className="animate-in-up delay-5 space-y-5 border-t border-border/50 pt-8">
+      <TrackView
+        as="section"
+        event="methodology_viewed"
+        className="animate-in-up delay-5 space-y-5 border-t border-border/50 pt-8"
+      >
         <h2 className="text-lg font-semibold tracking-tight">Methodology</h2>
 
         <div className="max-w-2xl space-y-3 font-mono text-sm leading-relaxed text-muted-foreground">
@@ -81,7 +86,7 @@ export default function Home() {
             <span>Verified</span>
           </div>
         </div>
-      </section>
+      </TrackView>
     </div>
   );
 }

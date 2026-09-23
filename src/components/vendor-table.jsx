@@ -17,6 +17,24 @@ import { GradeBadge } from "@/components/grade-badge";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { gradeOrder } from "@/lib/grades";
 
+const SEARCH_CAPTURE_DELAY_MS = 500;
+
+function vendorProps(vendor) {
+  return {
+    vendor_name: vendor.name,
+    vendor_slug: vendor.slug,
+    vendor_grade: vendor.grade,
+    vendor_domain: vendor.domain,
+  };
+}
+
+function captureAttributes(vendor) {
+  return {
+    "data-ph-capture-attribute-vendor-slug": vendor.slug,
+    "data-ph-capture-attribute-vendor-grade": vendor.grade,
+  };
+}
+
 function SortIcon({ field, sortField, sortDir }) {
   const isActive = sortField === field;
   return (
@@ -62,9 +80,7 @@ function VendorName({ vendor, className = "" }) {
   const handleClick = (e) => {
     e.stopPropagation();
     posthog.capture("vendor_link_clicked", {
-      vendor_name: vendor.name,
-      vendor_slug: vendor.slug,
-      vendor_grade: vendor.grade,
+      ...vendorProps(vendor),
       destination_url: vendor.website,
     });
   };
@@ -120,7 +136,10 @@ function NotesPanel({ vendor }) {
 function VendorCard({ vendor, expanded, onToggle }) {
   const canExpand = Boolean(vendor.notes);
   return (
-    <div className="rounded-xl border border-border/50 bg-card p-4 space-y-3">
+    <div
+      className="rounded-xl border border-border/50 bg-card p-4 space-y-3"
+      {...captureAttributes(vendor)}
+    >
       <div className="flex items-center justify-between">
         <VendorName vendor={vendor} className="font-semibold" />
         <GradeBadge grade={vendor.grade} />
@@ -187,14 +206,20 @@ function DomainDropdown({ domainFilter, setDomainFilter }) {
   }, []);
 
   const toggle = (domain) => {
-    setDomainFilter((prev) => {
-      const next = new Set(prev);
-      next.has(domain) ? next.delete(domain) : next.add(domain);
-      posthog.capture("vendor_domain_filtered", {
-        active_domains: [...next],
-      });
-      return next;
+    const next = new Set(domainFilter);
+    const enabled = !next.has(domain);
+    enabled ? next.add(domain) : next.delete(domain);
+    setDomainFilter(next);
+    posthog.capture("vendor_domain_filtered", {
+      domain,
+      enabled,
+      active_domains: [...next],
     });
+  };
+
+  const toggleOpen = () => {
+    if (!open) posthog.capture("domain_dropdown_opened");
+    setOpen(!open);
   };
 
   const activeCount = domainFilter.size;
@@ -202,7 +227,8 @@ function DomainDropdown({ domainFilter, setDomainFilter }) {
   return (
     <div className="relative" ref={ref}>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggleOpen}
+        aria-expanded={open}
         className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         Domain{activeCount > 0 ? ` (${activeCount})` : ""}
@@ -264,20 +290,11 @@ export function VendorTable({ vendors }) {
 
   const toggleExpand = (vendor) => {
     if (!vendor.notes) return;
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(vendor.slug)) {
-        next.delete(vendor.slug);
-      } else {
-        next.add(vendor.slug);
-        posthog.capture("vendor_expanded", {
-          vendor_name: vendor.name,
-          vendor_slug: vendor.slug,
-          vendor_grade: vendor.grade,
-        });
-      }
-      return next;
-    });
+    const next = new Set(expanded);
+    const opening = !next.has(vendor.slug);
+    opening ? next.add(vendor.slug) : next.delete(vendor.slug);
+    setExpanded(next);
+    posthog.capture(opening ? "vendor_expanded" : "vendor_collapsed", vendorProps(vendor));
   };
 
   const sorted = useMemo(() => {
@@ -292,6 +309,23 @@ export function VendorTable({ vendors }) {
       return mul * (gradeOrder[a.grade] - gradeOrder[b.grade]);
     });
   }, [vendors, filter, domainFilter, sortField, sortDir]);
+
+  const resultCount = sorted.length;
+
+  useEffect(() => {
+    const query = filter.trim();
+    if (!query) return;
+    const timer = setTimeout(() => {
+      const props = {
+        search_query: query,
+        result_count: resultCount,
+        active_domains: [...domainFilter],
+      };
+      posthog.capture("vendor_searched", props);
+      if (resultCount === 0) posthog.capture("vendor_search_no_results", props);
+    }, SEARCH_CAPTURE_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [filter, domainFilter, resultCount]);
 
   const sortAria = (field) =>
     sortField === field ? (sortDir === "asc" ? "ascending" : "descending") : "none";
@@ -326,15 +360,7 @@ export function VendorTable({ vendors }) {
           <Input
             placeholder="Filter vendors..."
             value={filter}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFilter(value);
-              if (value.length > 0) {
-                posthog.capture("vendor_searched", {
-                  search_query: value,
-                });
-              }
-            }}
+            onChange={(e) => setFilter(e.target.value)}
             className="pl-9 font-mono text-sm"
           />
         </div>
@@ -403,6 +429,7 @@ export function VendorTable({ vendors }) {
                     tabIndex={canExpand ? 0 : undefined}
                     aria-expanded={canExpand ? isOpen : undefined}
                     onKeyDown={canExpand ? (e) => onRowKeyDown(e, vendor) : undefined}
+                    {...captureAttributes(vendor)}
                   >
                     <TableCell className="px-4 py-3">
                       <VendorName vendor={vendor} />
