@@ -147,10 +147,10 @@
 - name: Google Gemini API
   slug: gemini
   domain: independent
-  costApi: yes
+  costApi: partial
   usageApi: partial
   billingExport: yes
-  granularity: Per-response token counts; USD by SKU per day through Cloud Billing on the linked project, no key- or model-level history endpoint on the Gemini API itself
+  granularity: Per-response token counts; USD only by SKU per day through Cloud Billing on the linked project, nothing on the Gemini API itself
 
   website: https://ai.google.dev
   notes: >
@@ -162,9 +162,9 @@
     through a linked Cloud Billing project, so USD spend is reachable the same
     way as GCP: Cloud Billing reports by SKU (generativelanguage.googleapis.com)
     and the scheduled BigQuery billing export, which is also the only export
-    path because AI Studio has no CSV export of its own. costApi yes rests on
-    that Cloud Billing surface, graded the same way as the AWS and GCP rows; the
-    Gemini API alone would be partial (tokens times the price list). Spend-based
+    path because AI Studio has no CSV export of its own. costApi partial: the
+    Gemini API alone gives tokens times the price list, and the USD in Cloud
+    Billing is the GCP row's surface, not this one's. Spend-based
     rate limits (429 RESOURCE_EXHAUSTED) apply per 10-minute window by usage
     tier.
 

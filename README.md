@@ -34,11 +34,14 @@ vendor data lives in `src/data/vendors.yaml`. grades are computed from it in `sr
 
 ##### 9.22.26
 
+- Release v0.2.0
 - Audit of all 39 vendors against current docs
 - BytePlus `costApi` and `billingExport` no -> yes (Billing Console API, Bill Storage TOS, missed before)
 - Together `costApi` no -> partial, `usageApi` partial -> yes (beta Billing Usage API, 2026-08-27)
 - Oracle `usageApi` no -> partial (Usage API USAGE query type)
 - Notes refreshed for 15 more vendors
+- Google Gemini API `costApi` graded partial: the Gemini API returns tokens only, the USD lives in Cloud Billing on the GCP row
+- Lint works again: ESLint pinned to 9 (the Next lint stack does not support 10)
 - Added Google Gemini API, Perplexity, Stability AI, Cloudflare Workers AI, Moonshot, Zhipu, SambaNova, Deepgram, AssemblyAI, CoreWeave
 
 ##### 7.13.26
