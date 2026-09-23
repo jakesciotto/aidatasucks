@@ -306,6 +306,50 @@
     partial: usage export is a manual dashboard action (select month, Export),
     no scheduled or programmatic export.
 
+- name: Moonshot AI (Kimi)
+  slug: moonshot
+  domain: independent
+  costApi: partial
+  usageApi: partial
+  billingExport: no
+  granularity: Current USD balance via GET /v1/users/me/balance; per-request token counts in the response; no usage history
+
+  website: https://platform.kimi.ai
+  notes: >
+    Kimi models served through an OpenAI-compatible API; the docs moved from
+    platform.moonshot.ai to platform.kimi.ai. costApi partial: GET
+    /v1/users/me/balance returns available_balance, voucher_balance and
+    cash_balance in USD, a balance and not spend; requests fail once
+    available_balance reaches zero. usageApi partial: chat completions return
+    per-request token counts in the usage object, and POST
+    /v1/tokenizers/estimate-token-count estimates before a call, but no endpoint
+    aggregates usage or spend by key or model over time. billingExport no:
+    invoices are requested by hand through Invoice Management on the dashboard,
+    balance alerts are dashboard only, and no scheduled, bulk or CSV usage
+    export is documented.
+
+- name: Zhipu AI (Z.ai)
+  slug: zhipu
+  domain: independent
+  costApi: no
+  usageApi: partial
+  billingExport: no
+  granularity: Per-response token counts only; no documented account-level usage or balance API
+
+  website: https://z.ai
+  notes: >
+    GLM models on an international OpenAI-compatible platform (docs.z.ai,
+    api.z.ai) plus a separate China platform at open.bigmodel.cn. costApi no: no
+    documented endpoint returns balance or spend in currency; the pricing page
+    lists per-token rates for manual calculation. usageApi partial: every chat
+    completion carries a usage object (prompt_tokens, completion_tokens,
+    total_tokens, prompt_tokens_details.cached_tokens), but no documented
+    account-level usage-history endpoint exists by model or key; the Coding Plan
+    usage stats are dashboard only, and third-party trackers rely on
+    undocumented api.z.ai/api/monitor/usage endpoints. billingExport no: a
+    finance-center bill page exists in the China dashboard, but no CSV,
+    scheduled or bulk export is documented and the page could not be inspected.
+
 - name: xAI
   slug: xai
   domain: independent
@@ -542,6 +586,28 @@
     billingExport partial: a Mar 2026 release added dashboard billing export
     for reconciliation, but with no documented API or scheduled mechanism.
 
+- name: SambaNova Cloud
+  slug: sambanova
+  domain: inference
+  costApi: no
+  usageApi: partial
+  billingExport: no
+  granularity: Per-response token usage and timing; dashboard usage by model and API key
+
+  website: https://cloud.sambanova.ai
+  notes: >
+    OpenAI-compatible chat completions API. costApi no: no endpoint returns a
+    currency amount; pricing is per token per model, so spend must be computed
+    from tokens times price. usageApi partial: each response returns a usage
+    object (prompt_tokens, completion_tokens, total_tokens, time_to_first_token,
+    total_latency, completion_tokens_per_sec, cached and reasoning token
+    detail), per response only, with no queryable usage-history endpoint;
+    response headers expose rate-limit remaining and reset for requests and
+    tokens. The dashboard Plans > Usage page shows usage by model and by API key
+    and Plans > Billing shows monthly charges, but both are client-rendered
+    views behind login and no CSV, scheduled or bulk export was found in the
+    docs.
+
 # ------------------------------------
 # Generative Media
 
@@ -568,6 +634,51 @@
     /v1/convai/agent/{agent_id}/llm-usage/calculate returns price_per_message
     (Sept 2026) for agent cost estimation. Billing export is manual dashboard
     CSV only; invoices download individually as PDF.
+
+- name: Deepgram
+  slug: deepgram
+  domain: generative
+  costApi: yes
+  usageApi: yes
+  billingExport: partial
+  granularity: Per-request USD (response.details.usd); per-period USD by accessor, deployment, tag or line item; usage by accessor, endpoint, model, method, tag or deployment in hours, tokens, characters and requests over a date range
+
+  website: https://deepgram.com
+  notes: >
+    Management API under /v1/projects/{id}. GET .../requests/{request_id}
+    returns response.details.usd, a per-request USD figure, and GET
+    .../billing/breakdown aggregates a dollars field by accessor, deployment,
+    tag or line_item across a date range, both real currency, so cost is yes.
+    GET .../usage/breakdown groups hours, agent_hours, tokens_in, tokens_out,
+    tts_characters and requests by accessor, endpoint, model, method, tags or
+    deployment with start and end filters, so usage is unit-level with history.
+    GET .../balances returns amount plus units, a balance snapshot, not spend
+    history. Whether the breakdown dollars reconcile exactly to the invoice is
+    not stated. No scheduled or bulk export endpoint; the Console offers manual
+    CSV export from the Usage tab, and invoices are unavailable on pay-as-you-go
+    plans.
+
+- name: AssemblyAI
+  slug: assemblyai
+  domain: generative
+  costApi: partial
+  usageApi: partial
+  billingExport: partial
+  granularity: Per-transcript audio_duration in seconds via GET /v2/transcript/{id}; balance, spend and usage charts in the dashboard only
+
+  website: https://www.assemblyai.com
+  notes: >
+    GET /v2/transcript (list) returns id, status, created, completed, audio_url
+    and resource_url per item, with no duration and no cost field, so
+    per-request spend requires one fetch per transcript. GET /v2/transcript/{id}
+    adds audio_duration in seconds, so cost can be derived against the published
+    per-hour rate, but no response carries a USD amount. Balance, spend and
+    usage (transcription activity, completion rate, spend activity, duration
+    transcribed, webhook activity) live only on the dashboard Cost and Usage
+    pages under Workspace > Manage; no documented endpoint exposes balance or
+    spend. No scheduled or bulk billing export is documented; invoices are
+    monthly, and the Processing Queue offers a manual CSV export of
+    transcriptions, not billing records.
 
 - name: Leonardo.ai
   slug: leonardo
@@ -879,3 +990,28 @@
     and is out of scope here. billingExport partial: invoices are dashboard
     PDFs, and the Billable Usage API is a pull endpoint rather than a
     vendor-scheduled push to storage.
+
+- name: CoreWeave
+  slug: coreweave
+  domain: infrastructure
+  costApi: partial
+  usageApi: yes
+  billingExport: partial
+  granularity: Hourly usage by resource (zone, cluster, SKU or capacity plan and rate class); Prometheus billing metrics over any time range
+
+  website: https://www.coreweave.com
+  notes: >
+    GPU cloud for training and inference (CKS, SUNK, serverless inference, AI
+    Object Storage). costApi partial: the FOCUS Usage Export API (GET
+    api.coreweave.com/v1/billing/focus, public preview since 2026-09-11) returns
+    hourly usage quantities in FOCUS 1.2 JSON or CSV but has no cost fields yet;
+    CoreWeave says cost columns are planned. USD requires instance hours times
+    the published on-demand rate, which the docs call an estimate. usageApi yes:
+    Prometheus billing metrics (billing:instance:total,
+    billing:object_storage_used_bytes:total, billing_resource_usage_storage,
+    billing_ip_address) are queryable in Managed Grafana over any range by
+    resource type, cluster, instance type and zone. billingExport partial: the
+    FOCUS API is an on-demand pull (about a 90-day window per request, results
+    inline, not scheduled, not delivered to object storage), and the Cloud
+    Console Billing Insights page (2026-04-20) is a dashboard view; no scheduled
+    bulk export found.
